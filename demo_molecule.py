@@ -1,5 +1,4 @@
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
-# Copyright (c) 2026 Rishi Gurnani
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +17,7 @@
 # Run it with the helper script:  ./demo_molecule.sh
 # ...or directly:                 uv run streamlit run demo_molecule.py
 
+import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Descriptors
 
@@ -69,3 +69,72 @@ st.code(
     language="python",
 )
 st.molecule("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", caption="Caffeine", width=200)
+
+# --- 5. Phase 2: interactive chemical dataframe -------------------------------
+st.header("5. `st.chem_dataframe` — structures in a table")
+st.caption(
+    "A chemistry-aware wrapper around `st.dataframe`: the molecule column is "
+    "rendered as 2D structures, everything else behaves like a normal dataframe."
+)
+library = pd.DataFrame(
+    {
+        "Name": ["Aspirin", "Caffeine", "Phenol", "Ibuprofen"],
+        "Mol": [
+            "CC(=O)Oc1ccccc1C(=O)O",
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "c1ccccc1O",
+            "CC(C)Cc1ccc(cc1)C(C)C(=O)O",
+        ],
+    }
+)
+# Descriptors for the non-molecule columns.
+library["MW"] = [
+    round(Descriptors.MolWt(Chem.MolFromSmiles(s)), 1) for s in library["Mol"]
+]
+library["LogP"] = [
+    round(Descriptors.MolLogP(Chem.MolFromSmiles(s)), 2) for s in library["Mol"]
+]
+st.chem_dataframe(
+    library,
+    mol_column="Mol",
+    highlight_substructure="c1ccccc1",
+    hide_index=True,
+)
+
+# --- 6. Phase 2: chemical-aware caching ---------------------------------------
+st.header("6. `@st.cache_data` with RDKit molecules")
+st.caption(
+    "`@st.cache_data` now accepts RDKit `Mol` arguments. The cache key is the "
+    "**input molecule's structure** (via `Mol.ToBinary()`) — *not* the Python "
+    "object identity, and *not* the fingerprint the function returns. So two "
+    "**different** molecules serialize to different bytes and get **different** "
+    "cache entries: a collision in the low-bit fingerprint *output* can never "
+    "cause a wrong cache hit. (Caveat: `ToBinary()` captures the graph, stereo, "
+    "and conformers, but not extra `Mol` properties set via `SetProp`.)"
+)
+
+
+@st.cache_data
+def morgan_fingerprint(mol: Chem.Mol) -> str:
+    """Cached on the molecule's binary identity; body runs only on a cache miss."""
+    from rdkit.Chem import AllChem
+
+    return AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=64).ToBitString()
+
+
+st.code(
+    "@st.cache_data\n"
+    "def morgan_fingerprint(mol):  # mol is an rdkit.Chem.Mol\n"
+    "    ...\n\n"
+    "# Two *distinct* Mol objects with the same structure -> one cached result\n"
+    'a = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))\n'
+    'b = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))',
+    language="python",
+)
+fp_a = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))
+fp_b = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))
+st.write("Fingerprint:", fp_a)
+st.write(
+    "Two distinct `Mol` objects with the same structure hit the same cache entry:",
+    fp_a == fp_b,
+)

@@ -50,6 +50,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.chat_input` | Display a chat input widget. It is designed for conversational apps and returns the submitted message or uploaded files depending on configuration. |
 | `st.chat_message` | Insert a chat message container. Use it to render messages from users, assistants, or named speakers. |
 | `st.checkbox` | Display a checkbox widget. It returns a boolean value. |
+| `st.chem_dataframe` | Display an interactive dataframe with auto-rendered 2D molecular structures for a molecule column (SMILES or RDKit Mol), with optional substructure highlighting. A chemistry-aware wrapper around `st.dataframe`. |
 | `st.code` | Display a code block with optional syntax highlighting. Use it for source code, commands, logs, and other preformatted text. |
 | `st.color_picker` | Display a color picker widget. It returns the selected color as a hex string. |
 | `st.columns` | Insert containers laid out as side-by-side columns. Use it for horizontal layouts and place elements into returned column containers. |

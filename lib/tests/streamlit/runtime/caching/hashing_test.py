@@ -569,6 +569,18 @@ class HashTest(unittest.TestCase):
         assert get_hash(im4) == get_hash(im5)
         assert get_hash(im5) != get_hash(im6)
 
+    def test_rdkit_mol(self):
+        from rdkit import Chem
+
+        # Structurally identical molecules must hash equal so they cache-hit,
+        # and different molecules must hash differently.
+        mol1 = Chem.MolFromSmiles("c1ccccc1O")
+        mol2 = Chem.MolFromSmiles("CCO")
+        mol3 = Chem.MolFromSmiles("c1ccccc1O")
+
+        assert get_hash(mol1) == get_hash(mol3)
+        assert get_hash(mol1) != get_hash(mol2)
+
     @pytest.mark.require_integration
     def test_pydantic_model(self):
         """Test that Pydantic models are properly hashed.

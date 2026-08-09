@@ -1,5 +1,3 @@
-# TODO: This license is not consistent with the license used in the project.
-#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -198,6 +196,7 @@ camera_input = _main.camera_input
 chat_message = _main.chat_message
 chat_input = _main.chat_input
 checkbox = _main.checkbox
+chem_dataframe = _main.chem_dataframe
 code = _main.code
 columns = _main.columns
 tabs = _main.tabs

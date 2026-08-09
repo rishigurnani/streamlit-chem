@@ -1,5 +1,4 @@
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
-# Copyright (c) 2026 Rishi Gurnani
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +24,7 @@ consistent across the whole ChemLit surface and lives in exactly one place.
 
 from __future__ import annotations
 
+import base64
 from typing import TYPE_CHECKING, Final, TypeAlias, Union
 
 from streamlit.errors import StreamlitAPIException
@@ -152,3 +152,28 @@ def mol_to_svg(
     )
     drawer.FinishDrawing()
     return drawer.GetDrawingText()
+
+
+def mol_to_svg_data_uri(
+    mol: Mol,
+    *,
+    width: int | None = None,
+    height: int | None = None,
+    highlight_atoms: list[int] | None = None,
+    highlight_bonds: list[int] | None = None,
+) -> str:
+    """Render ``mol`` to a base64-encoded ``data:image/svg+xml`` URI.
+
+    This is the embeddable form of a structure for image cells such as the
+    ``st.column_config.ImageColumn`` cells backing :func:`st.chem_dataframe`.
+    Takes the same drawing arguments as :func:`mol_to_svg`.
+    """
+    svg = mol_to_svg(
+        mol,
+        width=width,
+        height=height,
+        highlight_atoms=highlight_atoms,
+        highlight_bonds=highlight_bonds,
+    )
+    encoded = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+    return f"data:image/svg+xml;base64,{encoded}"

@@ -634,6 +634,14 @@ class _CacheFuncHasher:
             np_array = np.frombuffer(pixel_bytes, dtype="uint8")
             return self.to_bytes(np_array)
 
+        elif type_util.is_type(obj, "rdkit.Chem.rdchem.Mol"):
+            # RDKit Mol objects wrap C++ state that isn't hashable by default.
+            # ToBinary() gives a stable serialization of the structure, so
+            # molecules can be passed to @st.cache_data like any other argument.
+            # is_type() doesn't narrow for the type checker, so treat obj as Any.
+            mol_binary: bytes = cast("Any", obj).ToBinary()
+            return mol_binary
+
         elif inspect.isbuiltin(obj):
             return bytes(obj.__name__.encode())
 

@@ -1,5 +1,3 @@
-# TODO: This license is not consistent with the license used in the project.
-#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -209,6 +207,7 @@ NON_WIDGET_ELEMENTS: list[tuple[str, ELEMENT_PRODUCER]] = [
     ("json", lambda: st.json({})),
     ("metric", lambda: st.metric("Metric", 100)),
     ("dataframe", lambda: st.dataframe(pd.DataFrame())),
+    ("chem_dataframe", lambda: st.chem_dataframe(pd.DataFrame({"Mol": ["CCO"]}))),
     ("table", lambda: st.table(pd.DataFrame())),
     # charts:
     ("line_chart", lambda: st.line_chart(_CHART_DATA)),

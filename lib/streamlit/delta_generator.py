@@ -1,5 +1,3 @@
-# TODO: This license is not consistent with the license used in the project.
-#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +48,7 @@ from streamlit.delta_generator_singletons import (
 from streamlit.elements.alert import AlertMixin
 from streamlit.elements.arrow import ArrowMixin
 from streamlit.elements.balloons import BalloonsMixin
+from streamlit.elements.chem_dataframe import ChemDataFrameMixin
 from streamlit.elements.code import CodeMixin
 from streamlit.elements.deck_gl_json_chart import PydeckMixin
 from streamlit.elements.empty import EmptyMixin
@@ -204,6 +203,7 @@ class DeltaGenerator(
     CameraInputMixin,
     ChatMixin,
     CheckboxMixin,
+    ChemDataFrameMixin,
     CodeMixin,
     ColorPickerMixin,
     EmptyMixin,

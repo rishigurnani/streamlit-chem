@@ -1,5 +1,4 @@
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
-# Copyright (c) 2026 Rishi Gurnani
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -105,3 +104,15 @@ def test_mol_to_svg_highlights_do_not_break_rendering() -> None:
     atom_ids, bond_ids = mol_utils.get_substructure_match(mol, "c1ccccc1")
     svg = mol_utils.mol_to_svg(mol, highlight_atoms=atom_ids, highlight_bonds=bond_ids)
     assert "<svg" in svg
+
+
+def test_mol_to_svg_data_uri_is_base64_svg() -> None:
+    """The data-URI helper wraps the SVG markup as a base64 image URI."""
+    import base64
+
+    uri = mol_utils.mol_to_svg_data_uri(mol_utils.to_mol("CCO"))
+    prefix = "data:image/svg+xml;base64,"
+    assert uri.startswith(prefix)
+
+    decoded = base64.b64decode(uri[len(prefix) :]).decode("utf-8")
+    assert "<svg" in decoded
