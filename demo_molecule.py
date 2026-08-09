@@ -138,3 +138,30 @@ st.write(
     "Two distinct `Mol` objects with the same structure hit the same cache entry:",
     fp_a == fp_b,
 )
+
+# --- 7. Phase 3: validated SMARTS input ---------------------------------------
+st.header("7. `st.smarts_input` — validated substructure query")
+st.caption(
+    "A chemistry-aware `st.text_input`: it validates the SMARTS/SMILES pattern "
+    "with RDKit as you type and previews the match on an example molecule. "
+    "Try breaking it (e.g. `c1cc`) to see the inline validation."
+)
+query = st.smarts_input(
+    "Substructure query",
+    value="c1ccccc1",
+    preview="CC(=O)Oc1ccccc1C(=O)O",
+)
+st.write("Validated query:", query)
+
+# --- 8. Phase 3: molecule summary card ----------------------------------------
+st.header("8. `st.mol_card` — compact summary card")
+st.caption(
+    "Composes `st.molecule` with physicochemical `st.metric`s and a Lipinski "
+    "rule-of-five badge inside a bordered container."
+)
+st.mol_card(
+    "CC(=O)Oc1ccccc1C(=O)O",
+    title="Aspirin",
+    metrics=["MW", "LogP", "TPSA", "HBD", "HBA"],
+    highlight_substructure="c1ccccc1",
+)

@@ -93,6 +93,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.menu_button` | Display a dropdown menu button widget. Use it when a compact button should expose a small set of actions or options. |
 | `st.mermaid_chart` | Display a Mermaid diagram. Use it for text-based diagram definitions such as flowcharts, sequence diagrams, class diagrams, and state diagrams. |
 | `st.metric` | Display a metric in big bold font, with an optional indicator of how the metric changed. Use it for KPIs, headline numbers, optional inline sparklines (`chart_data`), and dashboard summaries. |
+| `st.mol_card` | Display a compact summary card for a molecule, composing `st.molecule` with physicochemical metrics and a Lipinski rule-of-five badge. Accepts a SMILES string or an `rdkit.Chem.Mol`. |
 | `st.molecule` | Display a molecule as a native 2D chemical structure, rendered server-side by RDKit. Accepts a SMILES string or an `rdkit.Chem.Mol`, with optional substructure highlighting. |
 | `st.multiselect` | Display a multiselect widget. Use it when users can choose multiple items from a list, optionally including new options they enter. |
 | `st.navigation` | Configure the available pages in a multipage app and where the navigation menu appears (`sidebar`, `top`, or `hidden`). It returns the currently selected page object, which the app should run. |
@@ -128,6 +129,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.tabs` | Insert containers separated into tabs. Use tabs to switch between related views while rendering all tab content in the same run. |
 | `st.text` | Write text without Markdown or HTML parsing. Use it for unformatted output. |
 | `st.text_area` | Display a multi-line text input widget. Use it for comments, prompts, notes, and longer free-form input. |
+| `st.smarts_input` | Display a text input for a SMARTS/SMILES substructure query, validated with RDKit as the user types, with an optional highlighted preview. Returns the query only when it is a valid pattern. |
 | `st.text_input` | Display a single-line text input widget. Use it for short free-form input such as names, filters, IDs, or search text. |
 | `st.time_input` | Display a time input widget. Use it when users need to choose a time of day. |
 | `st.title` | Display text in title formatting. Use it for the main page title. |

@@ -25,11 +25,13 @@ consistent across the whole ChemLit surface and lives in exactly one place.
 from __future__ import annotations
 
 import base64
-from typing import TYPE_CHECKING, Final, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Final, TypeAlias, Union
 
 from streamlit.errors import StreamlitAPIException
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from rdkit.Chem import Mol
 
 # A molecule the user hands us: either a live RDKit Mol or a SMILES string.
@@ -177,3 +179,63 @@ def mol_to_svg_data_uri(
     )
     encoded = base64.b64encode(svg.encode("utf-8")).decode("ascii")
     return f"data:image/svg+xml;base64,{encoded}"
+
+
+# Physicochemical descriptors ChemLit exposes, mapped to their RDKit
+# implementations lazily so importing this module never imports RDKit.
+SUPPORTED_DESCRIPTORS: Final = ("MW", "LogP", "TPSA", "HBD", "HBA", "RotB")
+
+
+def compute_descriptors(mol: Mol, names: Iterable[str]) -> dict[str, float]:
+    """Compute the named physicochemical descriptors for ``mol``.
+
+    Supported names are the entries of :data:`SUPPORTED_DESCRIPTORS` (``"MW"``,
+    ``"LogP"``, ``"TPSA"``, ``"HBD"``, ``"HBA"``, ``"RotB"``). Raises
+    ``StreamlitAPIException`` for an unknown descriptor name.
+    """
+    from rdkit.Chem import Descriptors
+
+    # RDKit registers descriptor functions on the Descriptors module dynamically,
+    # so they aren't visible to static type checkers; treat it as untyped here.
+    descriptors: Any = Descriptors
+    functions = {
+        "MW": descriptors.MolWt,
+        "LogP": descriptors.MolLogP,
+        "TPSA": descriptors.TPSA,
+        "HBD": descriptors.NumHDonors,
+        "HBA": descriptors.NumHAcceptors,
+        "RotB": descriptors.NumRotatableBonds,
+    }
+    values: dict[str, float] = {}
+    for name in names:
+        if name not in functions:
+            raise StreamlitAPIException(
+                f"Unknown molecular descriptor {name!r}. "
+                f"Supported descriptors: {', '.join(SUPPORTED_DESCRIPTORS)}."
+            )
+        values[name] = float(functions[name](mol))
+    return values
+
+
+# Lipinski "rule of five" thresholds; a drug-like molecule breaches at most one.
+_LIPINSKI_RULES: Final = (
+    ("MW", 500.0, "MW > 500"),
+    ("LogP", 5.0, "LogP > 5"),
+    ("HBD", 5.0, "HBD > 5"),
+    ("HBA", 10.0, "HBA > 10"),
+)
+
+
+def lipinski_violations(mol: Mol) -> list[str]:
+    """Return the Lipinski rule-of-five violations for ``mol``.
+
+    Each element describes a breached threshold. An empty list means the
+    molecule passes all four rules; the rule of five tolerates at most one
+    violation for drug-likeness.
+    """
+    values = compute_descriptors(mol, [name for name, _, _ in _LIPINSKI_RULES])
+    return [
+        message
+        for name, threshold, message in _LIPINSKI_RULES
+        if values[name] > threshold
+    ]

@@ -83,6 +83,7 @@ WIDGET_ELEMENTS: list[tuple[str, ELEMENT_PRODUCER]] = [
     # text_widgets
     ("text_area", lambda: st.text_area("Write me")),
     ("text_input", lambda: st.text_input("Write me")),
+    ("smarts_input", lambda: st.smarts_input("Query")),
     ("chat_input", lambda: st.chat_input("Chat with me")),
     # time_widgets
     ("date_input", lambda: st.date_input("Pick a date")),
@@ -174,6 +175,7 @@ NON_WIDGET_ELEMENTS: list[tuple[str, ELEMENT_PRODUCER]] = [
     ("code", lambda: st.code("Hello")),
     ("html", lambda: st.html("Hello")),
     ("molecule", lambda: st.molecule("c1ccccc1O")),
+    ("mol_card", lambda: st.mol_card("CCO")),
     ("latex", lambda: st.latex("Hello")),
     ("markdown", lambda: st.markdown("Hello")),
     ("write", lambda: st.write("Hello")),

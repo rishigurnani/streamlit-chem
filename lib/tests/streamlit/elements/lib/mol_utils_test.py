@@ -116,3 +116,37 @@ def test_mol_to_svg_data_uri_is_base64_svg() -> None:
 
     decoded = base64.b64decode(uri[len(prefix) :]).decode("utf-8")
     assert "<svg" in decoded
+
+
+def test_compute_descriptors_returns_requested_values() -> None:
+    """Requested descriptors are computed and returned keyed by name."""
+    values = mol_utils.compute_descriptors(
+        mol_utils.to_mol(_ASPIRIN_SMILES), ["MW", "HBD", "HBA"]
+    )
+    assert set(values) == {"MW", "HBD", "HBA"}
+    assert values["MW"] == pytest.approx(180.16, abs=0.1)
+    assert values["HBD"] == 1
+    assert values["HBA"] == 3
+
+
+def test_compute_descriptors_raises_on_unknown_name() -> None:
+    """An unknown descriptor name raises a StreamlitAPIException."""
+    with pytest.raises(StreamlitAPIException, match="Unknown molecular descriptor"):
+        mol_utils.compute_descriptors(mol_utils.to_mol("CCO"), ["NotADescriptor"])
+
+
+def test_lipinski_violations_passes_for_drug_like_molecule() -> None:
+    """A drug-like molecule (aspirin) has no rule-of-five violations."""
+    assert mol_utils.lipinski_violations(mol_utils.to_mol(_ASPIRIN_SMILES)) == []
+
+
+def test_lipinski_violations_flags_breached_rules() -> None:
+    """A large polyol breaches the MW, HBD, and HBA rules."""
+    violations = mol_utils.lipinski_violations(
+        mol_utils.to_mol("OCC(O)C(O)C(O)C(O)CO" * 3)
+    )
+    assert "MW > 500" in violations
+    assert "HBD > 5" in violations
+    assert "HBA > 10" in violations
+    # A rule that is not breached must not be reported.
+    assert "LogP > 5" not in violations

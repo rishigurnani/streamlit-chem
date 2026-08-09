@@ -74,12 +74,14 @@ from streamlit.elements.markdown import MarkdownMixin
 from streamlit.elements.media import MediaMixin
 from streamlit.elements.mermaid_chart import MermaidChartMixin
 from streamlit.elements.metric import MetricMixin
+from streamlit.elements.mol_card import MolCardMixin
 from streamlit.elements.molecule import MoleculeMixin
 from streamlit.elements.pdf import PdfMixin
 from streamlit.elements.plotly_chart import PlotlyMixin
 from streamlit.elements.progress import ProgressMixin
 from streamlit.elements.pyplot import PyplotMixin
 from streamlit.elements.skeleton import SkeletonMixin
+from streamlit.elements.smarts_input import SmartsInputMixin
 from streamlit.elements.snow import SnowMixin
 from streamlit.elements.space import SpaceMixin
 from streamlit.elements.spinner import SpinnerMixin
@@ -223,7 +225,9 @@ class DeltaGenerator(
     MediaMixin,
     MermaidChartMixin,
     MetricMixin,
+    MolCardMixin,
     MoleculeMixin,
+    SmartsInputMixin,
     MenuButtonMixin,
     MultiSelectMixin,
     NumberInputMixin,
