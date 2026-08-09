@@ -1,4 +1,6 @@
 /**
+ * TODO: This license is not consistent with the license used in the project.
+ *       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
  * Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,6 +50,7 @@ import {
   Markdown as MarkdownProto,
   MenuButton as MenuButtonProto,
   Metric as MetricProto,
+  Molecule as MoleculeProto,
   MultiSelect as MultiSelectProto,
   NumberInput as NumberInputProto,
   PageLink as PageLinkProto,
@@ -123,6 +126,9 @@ const LinkButton = lazy(
   () => import("~lib/components/elements/LinkButton/LinkButton")
 )
 const Metric = lazy(() => import("~lib/components/elements/Metric/Metric"))
+const Molecule = lazy(
+  () => import("~lib/components/elements/Molecule/Molecule")
+)
 const PageLink = lazy(
   () => import("~lib/components/elements/PageLink/PageLink")
 )
@@ -532,6 +538,17 @@ const RawElementNodeRenderer = (
           isStale={isStale}
         >
           <Html element={node.element.html as HtmlProto} {...elementProps} />
+        </ElementContainer>
+      )
+
+    case "molecule":
+      return (
+        <ElementContainer
+          node={node}
+          config={ElementContainerConfig.DEFAULT}
+          isStale={isStale}
+        >
+          <Molecule element={node.element.molecule as MoleculeProto} />
         </ElementContainer>
       )
 

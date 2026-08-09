@@ -77,6 +77,13 @@ dependencies = [
   # PyArrow 25.0.0 can segfault when first imported from a short-lived worker thread.
   # See https://github.com/apache/arrow/issues/50471.
   "pyarrow>=7.0,<25",
+  # RDKit is the cheminformatics engine powering ChemLit's native chemical
+  # elements (st.molecule today; the chem_dataframe / smarts_input / mol_card
+  # family next). Like "packaging" above, RDKit uses calendar-based versioning
+  # (YYYY.MM) where a "major" bump is a scheduled release rather than a breaking
+  # change, so we intentionally leave the upper bound uncapped. 2023.3 is the
+  # first release exposing the rdMolDraw2D highlight-drawing API we rely on.
+  "rdkit>=2023.3",
   "requests>=2.27,<3",
   "tenacity>=8.1.0,<10",
   # Starting from Python 3.11, Python has built in support for reading TOML files.

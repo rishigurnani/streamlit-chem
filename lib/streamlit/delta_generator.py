@@ -1,3 +1,5 @@
+# TODO: This license is not consistent with the license used in the project.
+#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,6 +75,7 @@ from streamlit.elements.markdown import MarkdownMixin
 from streamlit.elements.media import MediaMixin
 from streamlit.elements.mermaid_chart import MermaidChartMixin
 from streamlit.elements.metric import MetricMixin
+from streamlit.elements.molecule import MoleculeMixin
 from streamlit.elements.pdf import PdfMixin
 from streamlit.elements.plotly_chart import PlotlyMixin
 from streamlit.elements.progress import ProgressMixin
@@ -220,6 +223,7 @@ class DeltaGenerator(
     MediaMixin,
     MermaidChartMixin,
     MetricMixin,
+    MoleculeMixin,
     MenuButtonMixin,
     MultiSelectMixin,
     NumberInputMixin,

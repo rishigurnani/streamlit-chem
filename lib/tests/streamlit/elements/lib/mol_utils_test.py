@@ -1,0 +1,107 @@
+# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
+# Copyright (c) 2026 Rishi Gurnani
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Unit tests for the shared cheminformatics helpers in ``mol_utils``."""
+
+from __future__ import annotations
+
+import pytest
+from rdkit import Chem
+
+from streamlit.elements.lib import mol_utils
+from streamlit.errors import StreamlitAPIException
+
+# Aspirin: an acetyl group on a benzene ring bearing a carboxylic acid.
+_ASPIRIN_SMILES = "CC(=O)Oc1ccccc1C(=O)O"
+
+
+def test_to_mol_parses_smiles() -> None:
+    """A SMILES string is parsed into an equivalent RDKit Mol."""
+    mol = mol_utils.to_mol("c1ccccc1O")
+    assert Chem.MolToSmiles(mol) == Chem.CanonSmiles("c1ccccc1O")
+
+
+def test_to_mol_passes_through_existing_mol() -> None:
+    """An existing Mol is returned unchanged (same object identity)."""
+    original = Chem.MolFromSmiles("CCO")
+    assert mol_utils.to_mol(original) is original
+
+
+def test_to_mol_raises_on_invalid_smiles() -> None:
+    """An unparseable SMILES string raises a StreamlitAPIException."""
+    with pytest.raises(StreamlitAPIException, match="Could not parse molecule"):
+        mol_utils.to_mol("this-is-not-smiles")
+
+
+def test_to_mol_raises_on_unsupported_type() -> None:
+    """A non-string, non-Mol input raises a StreamlitAPIException."""
+    with pytest.raises(StreamlitAPIException, match="must be a SMILES string"):
+        mol_utils.to_mol(42)  # type: ignore[arg-type]
+
+
+def test_to_query_parses_smarts() -> None:
+    """A SMARTS string is parsed into a query Mol usable for matching."""
+    query = mol_utils.to_query("c1ccccc1")
+    assert Chem.MolFromSmiles("c1ccccc1").HasSubstructMatch(query)
+
+
+def test_to_query_raises_on_invalid_smarts() -> None:
+    """An unparseable SMARTS string raises a StreamlitAPIException."""
+    with pytest.raises(StreamlitAPIException, match="Could not parse substructure"):
+        mol_utils.to_query("[[[")
+
+
+def test_get_substructure_match_returns_atoms_and_bonds() -> None:
+    """A matching query yields the matched atom indices and the bonds between them."""
+    mol = mol_utils.to_mol(_ASPIRIN_SMILES)
+    atom_ids, bond_ids = mol_utils.get_substructure_match(mol, "c1ccccc1")
+
+    # A benzene ring has six atoms and six bonds fully inside the match.
+    assert len(atom_ids) == 6
+    assert len(bond_ids) == 6
+    # Every reported bond must connect two matched atoms.
+    matched = set(atom_ids)
+    for bond_id in bond_ids:
+        bond = mol.GetBondWithIdx(bond_id)
+        assert bond.GetBeginAtomIdx() in matched
+        assert bond.GetEndAtomIdx() in matched
+
+
+def test_get_substructure_match_returns_empty_when_no_match() -> None:
+    """A non-matching query yields empty atom and bond lists rather than raising."""
+    mol = mol_utils.to_mol("CCO")
+    assert mol_utils.get_substructure_match(mol, "c1ccccc1") == ([], [])
+
+
+def test_mol_to_svg_returns_svg_markup() -> None:
+    """Rendering returns a self-contained SVG document."""
+    svg = mol_utils.mol_to_svg(mol_utils.to_mol("CCO"))
+    assert "<svg" in svg
+    assert "</svg>" in svg
+
+
+def test_mol_to_svg_respects_explicit_canvas_size() -> None:
+    """Explicit width/height are forwarded to the RDKit canvas dimensions."""
+    svg = mol_utils.mol_to_svg(mol_utils.to_mol("CCO"), width=123, height=234)
+    assert "width='123px'" in svg
+    assert "height='234px'" in svg
+
+
+def test_mol_to_svg_highlights_do_not_break_rendering() -> None:
+    """Passing highlight atoms/bonds still produces valid SVG markup."""
+    mol = mol_utils.to_mol(_ASPIRIN_SMILES)
+    atom_ids, bond_ids = mol_utils.get_substructure_match(mol, "c1ccccc1")
+    svg = mol_utils.mol_to_svg(mol, highlight_atoms=atom_ids, highlight_bonds=bond_ids)
+    assert "<svg" in svg

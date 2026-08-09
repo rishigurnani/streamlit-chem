@@ -1,3 +1,5 @@
+# TODO: This license is not consistent with the license used in the project.
+#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -231,6 +233,7 @@ markdown = _main.markdown
 menu_button = _main.menu_button
 mermaid_chart = _main.mermaid_chart
 metric = _main.metric
+molecule = _main.molecule
 multiselect = _main.multiselect
 number_input = _main.number_input
 page_link = _main.page_link

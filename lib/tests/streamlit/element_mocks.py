@@ -1,3 +1,5 @@
+# TODO: This license is not consistent with the license used in the project.
+#       Delete the inconsistent license and above line and rerun pre-commit to insert a good license.
 # Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -173,6 +175,7 @@ NON_WIDGET_ELEMENTS: list[tuple[str, ELEMENT_PRODUCER]] = [
     ("text", lambda: st.text("Hello")),
     ("code", lambda: st.code("Hello")),
     ("html", lambda: st.html("Hello")),
+    ("molecule", lambda: st.molecule("c1ccccc1O")),
     ("latex", lambda: st.latex("Hello")),
     ("markdown", lambda: st.markdown("Hello")),
     ("write", lambda: st.write("Hello")),
