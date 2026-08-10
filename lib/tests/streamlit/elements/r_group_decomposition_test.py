@@ -43,13 +43,14 @@ def _rgd_no_match_app() -> None:
 
 
 def test_returns_mol_valued_decomposition() -> None:
-    """The returned table holds Mol fragments for each matched molecule."""
+    """The table holds the whole molecule beside its core and R-group fragments."""
     table = st.r_group_decomposition("c1ccccc1", ["c1ccccc1O", "c1ccccc1N"])
 
     assert list(table.index) == [0, 1]
-    assert "Core" in table.columns
-    assert "R1" in table.columns
-    # Fragment cells are RDKit Mol objects, not strings.
+    # The full input structure leads, then the core and R-groups.
+    assert list(table.columns)[:3] == ["Molecule", "Core", "R1"]
+    # Every structural cell is an RDKit Mol object, not a string.
+    assert all(isinstance(cell, Mol) for cell in table["Molecule"])
     assert all(isinstance(cell, Mol) for cell in table["Core"])
 
 
@@ -75,14 +76,18 @@ def test_labels_appear_as_leading_column() -> None:
 
 
 def test_renders_dataframe_with_image_columns() -> None:
-    """The decomposition renders a dataframe whose fragment cells are SVG URIs."""
+    """The decomposition renders the molecule and its fragments as SVG image cells."""
     at = AppTest.from_function(_rgd_app).run()
 
     assert not at.exception
     rendered = at.dataframe[0].value
+    # Both the whole structure and each fragment are rendered as image data URIs.
+    assert all(
+        str(cell).startswith(_SVG_DATA_URI_PREFIX) for cell in rendered["Molecule"]
+    )
     assert all(str(cell).startswith(_SVG_DATA_URI_PREFIX) for cell in rendered["Core"])
     # The label column is passed through as text, not rendered as an image.
-    assert list(rendered["Molecule"]) == ["Phenol", "Aniline"]
+    assert list(rendered["Name"]) == ["Phenol", "Aniline"]
 
 
 def test_no_match_shows_info_and_returns_empty() -> None:
@@ -116,3 +121,11 @@ def test_invalid_core_raises() -> None:
     """An unparseable core surfaces the underlying parse error."""
     with pytest.raises(StreamlitAPIException, match="Could not parse molecule"):
         st.r_group_decomposition("not-a-core", ["c1ccccc1O"])
+
+
+def test_label_column_named_molecule_raises() -> None:
+    """Using the reserved ``"Molecule"`` name for the label column is rejected."""
+    with pytest.raises(StreamlitAPIException, match="reserved"):
+        st.r_group_decomposition(
+            "c1ccccc1", ["c1ccccc1O"], labels=["Phenol"], label_column="Molecule"
+        )

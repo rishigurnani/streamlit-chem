@@ -110,7 +110,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.progress` | Display a progress bar. Use it to communicate completion state for running tasks or staged workflows. |
 | `st.pydeck_chart` | Draw a chart using the PyDeck library. Use it for deck.gl-powered maps and geospatial visualizations. |
 | `st.pyplot` | Display a matplotlib.pyplot figure. Use it for existing Matplotlib visualizations or libraries that produce Matplotlib figures. |
-| `st.r_group_decomposition` | Decompose a molecule series around a shared core into an R-group table — one row per molecule, one column of rendered 2D structures per R-group position — and return the decomposition as a Mol-valued DataFrame. Composes `st.dataframe` with RDKit R-group decomposition. |
+| `st.r_group_decomposition` | Decompose a molecule series around a shared core into an R-group table — one row per molecule showing the whole structure next to its core and each R-group position as rendered 2D structures — and return the decomposition as a Mol-valued DataFrame. Composes `st.dataframe` with RDKit R-group decomposition. |
 | `st.radio` | Display a radio button widget. Use it when users should choose exactly one option from a small visible set. |
 | `st.rerun` | Rerun the app or current fragment immediately. Use it to force a rerun after state changes or navigation-like actions. |
 | `st.scatter_chart` | Display a scatterplot chart. Use it for relationships between numeric variables, optionally with size and color encodings. |

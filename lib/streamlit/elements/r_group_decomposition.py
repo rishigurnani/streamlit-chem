@@ -15,18 +15,18 @@
 """Streamlit support for R-group decomposition tables.
 
 ``st.r_group_decomposition`` breaks a molecule series apart around a shared
-scaffold and lays the fragments out in a grid: one row per molecule, one column
-per R-group position, every cell a rendered 2D structure. It composes the
-Mol-core (``mol_utils.decompose_r_groups`` for the chemistry,
-``mol_utils.mol_to_svg_data_uri`` for the pictures) with ``st.dataframe`` image
-columns, and returns the decomposition as a ``Mol``-valued DataFrame for further
-SAR analysis.
+scaffold and lays the fragments out in a grid: one row per molecule showing the
+whole structure alongside its core and every R-group position, each cell a
+rendered 2D structure. It composes the Mol-core (``mol_utils.decompose_r_groups``
+for the chemistry, ``mol_utils.mol_to_svg_data_uri`` for the pictures) with
+``st.dataframe`` image columns, and returns the decomposition as a ``Mol``-valued
+DataFrame for further SAR analysis.
 """
 
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Final, cast
 
 from streamlit.elements.lib import mol_utils
 from streamlit.elements.lib.column_types import ImageColumn
@@ -42,6 +42,10 @@ if TYPE_CHECKING:
     from streamlit.delta_generator import DeltaGenerator
     from streamlit.elements.lib.mol_utils import MoleculeData, SubstructureQuery
 
+# The column holding each matched input molecule's full 2D structure, shown next
+# to its core and R-groups.
+_MOLECULE_COLUMN: Final = "Molecule"
+
 
 class RGroupDecompositionMixin:
     @gather_metrics("r_group_decomposition")
@@ -51,17 +55,18 @@ class RGroupDecompositionMixin:
         mols: Iterable[MoleculeData],
         *,  # keyword-only arguments:
         labels: Sequence[str] | None = None,
-        label_column: str = "Molecule",
+        label_column: str = "Name",
         mol_image_width: int = 150,
         mol_image_height: int = 100,
         display: bool = True,
     ) -> pd.DataFrame:
         """Decompose a molecule series around a shared core and show the R-groups.
 
-        Each molecule that matches ``core`` becomes a row; the core and every
-        R-group position (``R1``, ``R2``, ...) become columns of rendered 2D
-        structures. This is a thin composition over ``st.dataframe`` (via image
-        columns) and the RDKit Mol-core.
+        Each molecule that matches ``core`` becomes a row showing the whole
+        structure (the ``"Molecule"`` column) next to its core and every R-group
+        position (``R1``, ``R2``, ...), each a rendered 2D structure. This is a
+        thin composition over ``st.dataframe`` (via image columns) and the RDKit
+        Mol-core.
 
         Parameters
         ----------
@@ -81,7 +86,8 @@ class RGroupDecompositionMixin:
 
         label_column : str
             The header for the label column when ``labels`` is provided.
-            Defaults to ``"Molecule"``.
+            Defaults to ``"Name"``. It cannot be ``"Molecule"``, which is
+            reserved for the rendered input structure.
 
         mol_image_width : int
             The pixel width of each rendered fragment. Defaults to ``150``.
@@ -98,9 +104,10 @@ class RGroupDecompositionMixin:
         -------
         pandas.DataFrame
             The decomposition, with one row per matched molecule (indexed by its
-            position in ``mols``) and ``rdkit.Chem.Mol`` values in the ``Core``
-            and ``R#`` columns. The optional label column holds the matching
-            entries from ``labels``. Empty when no molecule matches the core.
+            position in ``mols``) and ``rdkit.Chem.Mol`` values in the
+            ``"Molecule"`` (the whole structure), ``"Core"``, and ``"R#"``
+            columns. The optional label column holds the matching entries from
+            ``labels``. Empty when no molecule matches the core.
 
         Examples
         --------
@@ -126,6 +133,12 @@ class RGroupDecompositionMixin:
                 f"labels has {len(labels)} values but there are {len(mol_list)} "
                 "molecules; they must be the same length."
             )
+        if labels is not None and label_column == _MOLECULE_COLUMN:
+            raise StreamlitAPIException(
+                f"label_column cannot be {_MOLECULE_COLUMN!r}; that name is "
+                "reserved for the rendered input structure. Choose another "
+                "label_column."
+            )
 
         rows, unmatched = mol_utils.decompose_r_groups(mol_list, core_mol)
         # RGroupDecompose reports the indices that did not match; the remaining
@@ -133,7 +146,7 @@ class RGroupDecompositionMixin:
         unmatched_set = set(unmatched)
         matched_indices = [i for i in range(len(mol_list)) if i not in unmatched_set]
 
-        table = _build_dataframe(rows, matched_indices, labels, label_column)
+        table = _build_dataframe(rows, matched_indices, mol_list, labels, label_column)
         if display:
             self._render(table, label_column, mol_image_width, mol_image_height)
         return table
@@ -186,10 +199,15 @@ def _render_fragment(value: object, width: int, height: int) -> str:
 def _build_dataframe(
     rows: list[dict[str, Mol]],
     matched_indices: list[int],
+    mol_list: list[Mol],
     labels: Sequence[str] | None,
     label_column: str,
 ) -> pd.DataFrame:
-    """Assemble the decomposition rows into a Mol-valued DataFrame."""
+    """Assemble the decomposition rows into a Mol-valued DataFrame.
+
+    Each row leads with the optional label, then the whole input structure, then
+    the core and R-group fragments, so the decomposition reads left to right.
+    """
     import pandas as pd
 
     if not rows:
@@ -200,6 +218,7 @@ def _build_dataframe(
         record: dict[str, object] = {}
         if labels is not None:
             record[label_column] = labels[original_index]
+        record[_MOLECULE_COLUMN] = mol_list[original_index]
         record.update(fragments)
         records.append(record)
     return pd.DataFrame(records, index=matched_indices)
