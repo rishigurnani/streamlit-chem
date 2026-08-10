@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ChemLit demo — showcases the native `st.molecule` element.
+# ChemLit demo — showcases the native ChemLit chemical elements.
 #
 # Run it with the helper script:  ./demo_molecule.sh
 # ...or directly:                 uv run streamlit run demo_molecule.py
@@ -23,10 +23,10 @@ from rdkit.Chem import Descriptors
 
 import streamlit as st
 
-st.title("🧪 ChemLit — `st.molecule` demo")
+st.title("🧪 ChemLit — chemical elements demo")
 st.caption(
-    "A native RDKit-rendered 2D structure element. No iframe, no custom "
-    "component — molecules go straight from Python to the browser as SVG."
+    "Native RDKit-rendered chemistry for Streamlit. Molecules go straight from "
+    "Python to the browser — no iframe, no custom component."
 )
 
 # --- 1. From a SMILES string --------------------------------------------------
@@ -39,8 +39,16 @@ st.header("2. From an `rdkit.Chem.Mol` object")
 st.code('st.molecule(Chem.MolFromSmiles("CCO"), caption="Ethanol")', language="python")
 st.molecule(Chem.MolFromSmiles("CCO"), caption="Ethanol")
 
-# --- 3. Interactive: draw your own -------------------------------------------
-st.header("3. Interactive — type a SMILES")
+# --- 3. Fixed pixel width -----------------------------------------------------
+st.header("3. Fixed pixel width")
+st.code(
+    'st.molecule("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", caption="Caffeine", width=200)',
+    language="python",
+)
+st.molecule("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", caption="Caffeine", width=200)
+
+# --- 4. Interactive: draw your own -------------------------------------------
+st.header("4. Interactive — type a SMILES")
 smiles = st.text_input("SMILES", value="CC(=O)Oc1ccccc1C(=O)O")
 highlight = st.text_input(
     "Highlight substructure (SMARTS/SMILES, optional)", value="c1ccccc1"
@@ -62,15 +70,7 @@ else:
         st.metric("H-bond donors", Descriptors.NumHDonors(mol))
         st.metric("H-bond acceptors", Descriptors.NumHAcceptors(mol))
 
-# --- 4. Fixed pixel width -----------------------------------------------------
-st.header("4. Fixed pixel width")
-st.code(
-    'st.molecule("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", caption="Caffeine", width=200)',
-    language="python",
-)
-st.molecule("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", caption="Caffeine", width=200)
-
-# --- 5. Phase 2: interactive chemical dataframe -------------------------------
+# --- 5. Interactive chemical dataframe ----------------------------------------
 st.header("5. `st.chem_dataframe` — structures in a table")
 st.caption(
     "A chemistry-aware wrapper around `st.dataframe`: the molecule column is "
@@ -101,60 +101,8 @@ st.chem_dataframe(
     hide_index=True,
 )
 
-# --- 6. Phase 2: chemical-aware caching ---------------------------------------
-st.header("6. `@st.cache_data` with RDKit molecules")
-st.caption(
-    "`@st.cache_data` now accepts RDKit `Mol` arguments. The cache key is the "
-    "**input molecule's structure** (via `Mol.ToBinary()`) — *not* the Python "
-    "object identity, and *not* the fingerprint the function returns. So two "
-    "**different** molecules serialize to different bytes and get **different** "
-    "cache entries: a collision in the low-bit fingerprint *output* can never "
-    "cause a wrong cache hit. (Caveat: `ToBinary()` captures the graph, stereo, "
-    "and conformers, but not extra `Mol` properties set via `SetProp`.)"
-)
-
-
-@st.cache_data
-def morgan_fingerprint(mol: Chem.Mol) -> str:
-    """Cached on the molecule's binary identity; body runs only on a cache miss."""
-    from rdkit.Chem import AllChem
-
-    return AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=64).ToBitString()
-
-
-st.code(
-    "@st.cache_data\n"
-    "def morgan_fingerprint(mol):  # mol is an rdkit.Chem.Mol\n"
-    "    ...\n\n"
-    "# Two *distinct* Mol objects with the same structure -> one cached result\n"
-    'a = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))\n'
-    'b = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))',
-    language="python",
-)
-fp_a = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))
-fp_b = morgan_fingerprint(Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O"))
-st.write("Fingerprint:", fp_a)
-st.write(
-    "Two distinct `Mol` objects with the same structure hit the same cache entry:",
-    fp_a == fp_b,
-)
-
-# --- 7. Phase 3: validated SMARTS input ---------------------------------------
-st.header("7. `st.smarts_input` — validated substructure query")
-st.caption(
-    "A chemistry-aware `st.text_input`: it validates the SMARTS/SMILES pattern "
-    "with RDKit as you type and previews the match on an example molecule. "
-    "Try breaking it (e.g. `c1cc`) to see the inline validation."
-)
-query = st.smarts_input(
-    "Substructure query",
-    value="c1ccccc1",
-    preview="CC(=O)Oc1ccccc1C(=O)O",
-)
-st.write("Validated query:", query)
-
-# --- 8. Phase 3: molecule summary card ----------------------------------------
-st.header("8. `st.mol_card` — compact summary card")
+# --- 6. Molecule summary card -------------------------------------------------
+st.header("6. `st.mol_card` — compact summary card")
 st.caption(
     "Composes `st.molecule` with physicochemical `st.metric`s and a Lipinski "
     "rule-of-five badge inside a bordered container."
@@ -163,32 +111,50 @@ st.mol_card(
     "CC(=O)Oc1ccccc1C(=O)O",
     title="Aspirin",
     metrics=["MW", "LogP", "TPSA", "HBD", "HBA"],
-    highlight_substructure="c1ccccc1",
 )
 
-# --- 9. Phase 4: interactive 2D editor ----------------------------------------
-st.header("9. `st.chem_draw` — interactive 2D editor")
+# --- 7. Interactive 2D editor -------------------------------------------------
+st.header("7. `st.chem_draw` — build a library by drawing")
 st.caption(
-    "Wraps the Ketcher editor and returns the drawn structure directly as an "
-    "RDKit `Mol`. Edit the molecule and click Apply to update the properties."
+    "Wraps the Ketcher editor and returns the drawn structure as an RDKit "
+    "`Mol`. Draw a molecule and click **Apply** in the editor — each applied "
+    "structure is appended to a running library and shown with `st.chem_dataframe`."
 )
-drawn = st.chem_draw("c1ccccc1O")
+if "drawn_library" not in st.session_state:
+    st.session_state.drawn_library = []
+    # The SMILES most recently committed via Ketcher's Apply button. Tracking it
+    # separately means ordinary reruns (and Clear) don't re-append the structure
+    # the editor still holds.
+    st.session_state.last_applied = None
+
+# Start empty so the first structure in the library is one you actually drew.
+drawn = st.chem_draw(key="chem_draw_editor")
 if drawn is not None:
-    left, right = st.columns([1, 1])
-    with left:
-        st.molecule(drawn, caption="Your structure", width=250)
-    with right:
-        st.metric("Molecular weight", f"{Descriptors.MolWt(drawn):.1f}")
-        st.metric("LogP", f"{Descriptors.MolLogP(drawn):.2f}")
+    applied = Chem.MolToSmiles(drawn)
+    if applied != st.session_state.last_applied:
+        st.session_state.drawn_library.append(applied)
+        st.session_state.last_applied = applied
+
+if st.button(":material/delete: Clear library"):
+    st.session_state.drawn_library = []
+
+if st.session_state.drawn_library:
+    drawn_df = pd.DataFrame({"Mol": st.session_state.drawn_library})
+    drawn_df.insert(0, "#", range(1, len(drawn_df) + 1))
+    drawn_df["MW"] = [
+        round(Descriptors.MolWt(Chem.MolFromSmiles(s)), 1) for s in drawn_df["Mol"]
+    ]
+    st.chem_dataframe(drawn_df, mol_column="Mol", hide_index=True)
 else:
-    st.info("Draw a molecule to see its properties.")
+    st.info("Draw a molecule and click **Apply** in the editor to add it.")
 
 st.divider()
 
-st.header("10. `st.mol_viewer` — interactive 3D viewer")
+# --- 8. Interactive 3D viewer -------------------------------------------------
+st.header("8. `st.mol_viewer` — click an atom to see its element")
 st.caption(
     "Renders a WebGL 3D structure (3Dmol.js) from a server-side RDKit conformer. "
-    "Click atoms to select them — the selection flows straight back into Python."
+    "Click atoms and ChemLit reports the element (C, O, N, ...) of each one."
 )
 
 
@@ -205,23 +171,32 @@ st.code(
     'event = st.mol_viewer("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", style="ball_and_stick")',
     language="python",
 )
+molblock = caffeine_molblock()
 event = st.mol_viewer(
-    caffeine_molblock(),
+    molblock,
     style="ball_and_stick",
     surface="vdw",
     generate_3d=False,
     height=420,
 )
+# Parse the *same* MOL block the viewer rendered so atom indices line up exactly
+# with the clicked atoms (the embedding adds explicit hydrogens).
+viewer_mol = Chem.MolFromMolBlock(molblock, removeHs=False)
 selected_atoms = event.selection.atoms
 if selected_atoms:
-    st.success(f"Selected atom indices: {selected_atoms}")
+    clicked = [
+        f"atom {i} → **{viewer_mol.GetAtomWithIdx(i).GetSymbol()}**"
+        for i in selected_atoms
+        if i < viewer_mol.GetNumAtoms()
+    ]
+    st.success("Clicked: " + ",  ".join(clicked))
 else:
-    st.info("Click an atom in the 3D view to select it.")
+    st.info("Click an atom in the 3D view to see its element.")
 
 st.divider()
 
-# --- 11. Phase 5: chemical-space map ------------------------------------------
-st.header("11. `st.chem_space` — map & lasso-select a library")
+# --- 9. Chemical-space map ----------------------------------------------------
+st.header("9. `st.chem_space` — map & lasso-select a library")
 st.caption(
     "Turns a molecule library into a 2D map (fingerprints → PCA/t-SNE/UMAP). "
     "Box- or lasso-select points and the picked molecules flow straight back "
@@ -286,12 +261,13 @@ else:
 
 st.divider()
 
-# --- 12. Phase 5: R-group decomposition ---------------------------------------
-st.header("12. `st.r_group_decomposition` — R-groups around a scaffold")
+# --- 10. R-group decomposition ------------------------------------------------
+st.header("10. `st.r_group_decomposition` — R-groups around a scaffold")
 st.caption(
-    "Breaks a series apart around a shared core: one row per molecule, one "
-    "column of rendered structures per R-group position. Returns the "
-    "decomposition as a `Mol`-valued DataFrame for further SAR analysis."
+    "Breaks a series apart around a shared core: each row shows the whole "
+    "**molecule** next to its **core** and every **R-group** position. "
+    "4-aminophenol carries two substituents, so the table grows an **R2** "
+    "column automatically."
 )
 st.code(
     'st.r_group_decomposition("c1ccccc1", mols, labels=names)',
@@ -299,36 +275,7 @@ st.code(
 )
 st.r_group_decomposition(
     "c1ccccc1",
-    ["c1ccccc1O", "Cc1ccccc1", "Clc1ccccc1", "Nc1ccccc1", "OCc1ccccc1"],
-    labels=["Phenol", "Toluene", "Chlorobenzene", "Aniline", "Benzyl alcohol"],
+    ["Nc1ccc(O)cc1", "c1ccccc1O", "Cc1ccccc1", "Nc1ccccc1"],
+    labels=["4-Aminophenol", "Phenol", "Toluene", "Aniline"],
     label_column="Compound",
 )
-
-st.divider()
-
-# --- 13. Phase 5: cross-widget highlight binding ------------------------------
-st.header("13. Cross-widget substructure highlight binding")
-st.caption(
-    "One shared query drives the highlight in *every* structure element — no "
-    "element reaches into another; they all read the same value. Edit the query "
-    "and watch both the molecule and the card update together."
-)
-shared_query = st.smarts_input(
-    "Shared highlight query",
-    value="c1ccccc1",
-    key="shared_highlight",
-)
-bind_left, bind_right = st.columns(2)
-with bind_left:
-    st.molecule(
-        "CC(=O)Oc1ccccc1C(=O)O",
-        caption="Aspirin",
-        highlight_substructure=shared_query,
-    )
-with bind_right:
-    st.mol_card(
-        "Cc1ccc(cc1)S(=O)(=O)N",
-        title="p-Toluenesulfonamide",
-        metrics=["MW", "LogP", "TPSA"],
-        highlight_substructure=shared_query,
-    )
