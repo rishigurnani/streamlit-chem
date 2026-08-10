@@ -52,6 +52,6 @@ streamlit run demo_molecule.py
 ```
 
 [github_badge]: https://badgen.net/badge/icon/GitHub?icon=github&color=black&label
-[github_link]: https://github.com/rishigurnani/ChemLit
-[pypi_badge]: https://badgen.net/pypi/v/streamlit-chem?icon=pypi&color=black&label
+[github_link]: https://github.com/rishigurnani/streamlit-chem
+[pypi_badge]: https://img.shields.io/pypi/v/streamlit-chem?logo=pypi&logoColor=white&color=black&label=PyPI
 [pypi_link]: https://pypi.org/project/streamlit-chem
