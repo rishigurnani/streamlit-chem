@@ -4346,6 +4346,41 @@ wheels = [
 [[package]]
 name = "streamlit"
 version = "1.61.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "altair" },
+    { name = "anyio" },
+    { name = "blinker" },
+    { name = "click" },
+    { name = "httptools" },
+    { name = "itsdangerous" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or python_full_version >= '3.15'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.15'" },
+    { name = "packaging" },
+    { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or python_full_version >= '3.15'" },
+    { name = "pandas", version = "3.0.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.15'" },
+    { name = "pillow" },
+    { name = "protobuf" },
+    { name = "pyarrow" },
+    { name = "pydeck" },
+    { name = "python-multipart" },
+    { name = "requests" },
+    { name = "starlette" },
+    { name = "tenacity" },
+    { name = "toml" },
+    { name = "typing-extensions" },
+    { name = "uvicorn" },
+    { name = "watchdog", marker = "sys_platform != 'darwin'" },
+    { name = "websockets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ad/4a/6d0bf2f78de59924564caf47298341c09f61bf3814f15f0d15ef09fe1e3d/streamlit-1.61.1.tar.gz", hash = "sha256:68acf1ff1b6005b19205c2777d832deea0c1edd6fbbf7f43f091b96220e5e35f", size = 9907073, upload-time = "2026-08-05T14:51:01.956Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4f/e3/deeea39117e1ffbce29755b45bceb214692e0a0aa496a17ce742b98ef3e1/streamlit-1.61.1-py3-none-any.whl", hash = "sha256:3f0ebf6764c3f938f8107414c9533942fa85a84b57affdaa7727d562210d8ece", size = 10512871, upload-time = "2026-08-05T14:50:59.246Z" },
+]
+
+[[package]]
+name = "streamlit-chem"
+version = "0.1.0"
 source = { editable = "lib" }
 dependencies = [
     { name = "altair" },
@@ -4429,7 +4464,7 @@ requires-dist = [
     { name = "snowflake-snowpark-python", extras = ["modin"], marker = "extra == 'snowflake'", specifier = ">=1.17.0" },
     { name = "sqlalchemy", marker = "extra == 'sql'", specifier = ">=2.0.0" },
     { name = "starlette", specifier = ">=0.46.0,<2" },
-    { name = "streamlit", extras = ["auth", "charts", "snowflake", "sql", "pdf", "performance"], marker = "extra == 'all'" },
+    { name = "streamlit-chem", extras = ["auth", "charts", "snowflake", "sql", "pdf", "performance"], marker = "extra == 'all'" },
     { name = "streamlit-pdf", marker = "extra == 'pdf'", specifier = ">=1.0.0" },
     { name = "tenacity", specifier = ">=8.1.0,<10" },
     { name = "toml", specifier = ">=0.10.1,<2" },
@@ -4446,7 +4481,7 @@ name = "streamlit-dev"
 version = "0.0.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "streamlit" },
+    { name = "streamlit-chem" },
 ]
 
 [package.dev-dependencies]
@@ -4486,7 +4521,7 @@ dev = [
     { name = "seaborn" },
     { name = "semver" },
     { name = "setuptools" },
-    { name = "streamlit", extra = ["auth", "charts", "pdf", "performance"] },
+    { name = "streamlit-chem", extra = ["auth", "charts", "pdf", "performance"] },
     { name = "streamlit-ketcher" },
     { name = "testfixtures", version = "8.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or python_full_version >= '3.15'" },
     { name = "testfixtures", version = "12.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.15'" },
@@ -4531,7 +4566,7 @@ integration = [
     { name = "scipy", version = "1.18.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' and python_full_version < '3.15'" },
     { name = "seaborn" },
     { name = "sqlalchemy", extra = ["mypy"] },
-    { name = "streamlit", extra = ["auth", "charts", "pdf", "performance", "snowflake"] },
+    { name = "streamlit-chem", extra = ["auth", "charts", "pdf", "performance", "snowflake"] },
     { name = "streamlit-ketcher" },
     { name = "sympy" },
     { name = "testfixtures", version = "8.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or python_full_version >= '3.15'" },
@@ -4562,7 +4597,7 @@ test = [
     { name = "requests-mock" },
     { name = "rich" },
     { name = "seaborn" },
-    { name = "streamlit", extra = ["auth", "charts", "pdf", "performance"] },
+    { name = "streamlit-chem", extra = ["auth", "charts", "pdf", "performance"] },
     { name = "streamlit-ketcher" },
     { name = "testfixtures", version = "8.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or python_full_version >= '3.15'" },
     { name = "testfixtures", version = "12.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.15'" },
@@ -4573,7 +4608,7 @@ test = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "streamlit", editable = "lib" }]
+requires-dist = [{ name = "streamlit-chem", editable = "lib" }]
 
 [package.metadata.requires-dev]
 automation = [
@@ -4611,7 +4646,7 @@ dev = [
     { name = "seaborn" },
     { name = "semver" },
     { name = "setuptools" },
-    { name = "streamlit", extras = ["auth", "charts", "pdf", "performance"], editable = "lib" },
+    { name = "streamlit-chem", extras = ["auth", "charts", "pdf", "performance"], editable = "lib" },
     { name = "streamlit-ketcher" },
     { name = "testfixtures" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
@@ -4653,8 +4688,8 @@ integration = [
     { name = "scipy" },
     { name = "seaborn" },
     { name = "sqlalchemy", extras = ["mypy"] },
-    { name = "streamlit", extras = ["auth", "charts", "pdf", "performance"], editable = "lib" },
-    { name = "streamlit", extras = ["snowflake"], editable = "lib" },
+    { name = "streamlit-chem", extras = ["auth", "charts", "pdf", "performance"], editable = "lib" },
+    { name = "streamlit-chem", extras = ["snowflake"], editable = "lib" },
     { name = "streamlit-ketcher" },
     { name = "sympy" },
     { name = "testfixtures" },
@@ -4683,7 +4718,7 @@ test = [
     { name = "requests-mock" },
     { name = "rich" },
     { name = "seaborn" },
-    { name = "streamlit", extras = ["auth", "charts", "pdf", "performance"], editable = "lib" },
+    { name = "streamlit-chem", extras = ["auth", "charts", "pdf", "performance"], editable = "lib" },
     { name = "streamlit-ketcher" },
     { name = "testfixtures" },
     { name = "tomli", marker = "python_full_version < '3.11'" },

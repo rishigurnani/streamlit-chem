@@ -17,15 +17,17 @@ requires = ["setuptools>=65.5.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "streamlit"
-version = "1.61.1"
-description = "A faster way to build and share data apps"
+name = "streamlit-chem"
+version = "0.1.0"
+description = "Native, RDKit-powered chemistry for Streamlit"
 # Note: README.md is in the repo root. The build process copies it to lib/
 # before building. See .github/workflows/release.yml.
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
-authors = [{ name = "Snowflake Inc", email = "hello@streamlit.io" }]
+# streamlit-chem is a chemistry-focused fork of Streamlit (Apache-2.0,
+# Snowflake Inc.). The upstream copyright is preserved throughout the source.
+authors = [{ name = "Rishi Gurnani", email = "rgurnani96@gmail.com" }]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
@@ -145,7 +147,7 @@ performance = [
 ]
 # Install all optional dependencies:
 all = [
-  "streamlit[auth,charts,snowflake,sql,pdf,performance]",
+  "streamlit-chem[auth,charts,snowflake,sql,pdf,performance]",
   # Improved exception traceback formatting:
   "rich>=11.0.0",
 ]
@@ -154,12 +156,9 @@ all = [
 streamlit = "streamlit.web.cli:main"
 
 [project.urls]
-Homepage = "https://streamlit.io"
-Documentation = "https://docs.streamlit.io/"
-"Source Code" = "https://github.com/streamlit/streamlit"
-"Bug Tracker" = "https://github.com/streamlit/streamlit/issues"
-"Release Notes" = "https://docs.streamlit.io/develop/quick-reference/changelog"
-Community = "https://discuss.streamlit.io/"
+Homepage = "https://github.com/rishigurnani/streamlit-chem"
+"Source Code" = "https://github.com/rishigurnani/streamlit-chem"
+"Bug Tracker" = "https://github.com/rishigurnani/streamlit-chem/issues"
 
 [tool.setuptools]
 zip-safe = false

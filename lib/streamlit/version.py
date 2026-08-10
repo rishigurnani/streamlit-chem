@@ -15,4 +15,6 @@
 from importlib.metadata import version as _version
 from typing import Final
 
-STREAMLIT_VERSION_STRING: Final[str] = _version("streamlit")
+# The import package is still named "streamlit" (for drop-in compatibility), but
+# the installed distribution is "streamlit-chem", so we look up its metadata here.
+STREAMLIT_VERSION_STRING: Final[str] = _version("streamlit-chem")

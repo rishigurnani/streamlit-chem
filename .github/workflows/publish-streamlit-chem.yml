@@ -1,0 +1,78 @@
+name: Publish streamlit-chem to PyPI
+
+# Builds the wheel + sdist (including the compiled frontend) and publishes them
+# to PyPI using Trusted Publishing (OIDC) — no API token or stored secret needed.
+#
+# How to release:
+#   1. Bump `version` in lib/pyproject.toml (and run `uv lock`), commit, push.
+#   2. Tag the commit `vX.Y.Z` (matching that version) and push the tag:
+#        git tag v0.1.0 && git push origin v0.1.0
+#   3. This workflow builds and publishes automatically.
+#
+# One-time setup on PyPI (Trusted Publisher) is documented in the PR/commit that
+# added this file. Until that publisher is configured, the "Publish" step fails.
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+.*"
+  # Allow a manual build (does not publish unless a Trusted Publisher matches).
+  workflow_dispatch:
+
+# Least privilege at the top level; the publish job opts into id-token below.
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required for PyPI Trusted Publishing (OIDC token exchange).
+      id-token: write
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set Python version vars
+        uses: ./.github/actions/build_info
+
+      - name: Set up build environment (uv, Python, Node 24, protoc)
+        uses: ./.github/actions/make_init
+        with:
+          python_version: ${{ env.PYTHON_MAX_VERSION }}
+
+      - name: Verify tag matches package version
+        # Only enforced for tag pushes. A leading "v" is stripped so a `v0.1.0`
+        # tag is compared against the `0.1.0` version in lib/pyproject.toml.
+        if: github.ref_type == 'tag'
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          TAG="${REF_NAME#v}"
+          uv run --no-sync python scripts/verify_version.py --tag "$TAG"
+
+      - name: Build the wheel and sdist
+        timeout-minutes: 120
+        run: |
+          sudo apt-get install -y rsync
+          make package
+
+      - name: Store the distribution as a build artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: streamlit-chem-dist
+          path: lib/dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          packages-dir: lib/dist/
