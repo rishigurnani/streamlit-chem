@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import pytest
 from rdkit import Chem
+from rdkit.Chem import AllChem
 
 from streamlit.elements.lib import mol_utils
 from streamlit.errors import StreamlitAPIException
@@ -42,6 +43,21 @@ def test_to_mol_raises_on_invalid_smiles() -> None:
     """An unparseable SMILES string raises a StreamlitAPIException."""
     with pytest.raises(StreamlitAPIException, match="Could not parse molecule"):
         mol_utils.to_mol("this-is-not-smiles")
+
+
+def test_to_mol_parses_molblock() -> None:
+    """A MOL block string is auto-detected and parsed back into the same molecule."""
+    molblock = mol_utils.to_molblock_3d("CCO")
+    mol = mol_utils.to_mol(molblock)
+    # The embedded MOL block keeps explicit hydrogens; strip them to compare the
+    # heavy-atom skeleton against the original SMILES.
+    assert Chem.MolToSmiles(Chem.RemoveHs(mol)) == Chem.CanonSmiles("CCO")
+
+
+def test_to_mol_raises_on_invalid_molblock() -> None:
+    """A string that looks like a MOL block but is malformed raises clearly."""
+    with pytest.raises(StreamlitAPIException, match="MOL block"):
+        mol_utils.to_mol("not really\na V2000 mol block\nM  END\n")
 
 
 def test_to_mol_raises_on_unsupported_type() -> None:
@@ -150,3 +166,43 @@ def test_lipinski_violations_flags_breached_rules() -> None:
     assert "HBA > 10" in violations
     # A rule that is not breached must not be reported.
     assert "LogP > 5" not in violations
+
+
+def _molblock_z_coords(molblock: str) -> list[float]:
+    """Return the z-coordinate of every atom in a V2000 MOL block."""
+    lines = molblock.splitlines()
+    # The counts line (index 3) starts with the atom count in its first 3 chars;
+    # atom lines follow, each holding x/y/z in the first three fixed columns.
+    atom_count = int(lines[3][:3])
+    return [float(lines[4 + i].split()[2]) for i in range(atom_count)]
+
+
+def test_to_molblock_3d_embeds_conformer_from_smiles() -> None:
+    """A SMILES string is embedded into a MOL block with non-flat 3D coords."""
+    molblock = mol_utils.to_molblock_3d("c1ccccc1O")
+    assert "V2000" in molblock
+    # A genuine 3D embedding must have at least one atom off the z=0 plane.
+    assert any(abs(z) > 1e-6 for z in _molblock_z_coords(molblock))
+
+
+def test_to_molblock_3d_adds_hydrogens() -> None:
+    """Embedding adds explicit hydrogens, so methane yields five atoms."""
+    molblock = mol_utils.to_molblock_3d("C")
+    assert int(molblock.splitlines()[3][:3]) == 5
+
+
+def test_to_molblock_3d_without_generate_uses_existing_conformer() -> None:
+    """With ``generate_3d=False`` an existing conformer is serialized as-is."""
+    mol = Chem.AddHs(Chem.MolFromSmiles("CCO"))
+    AllChem.EmbedMolecule(mol, AllChem.ETKDG())
+    expected = mol.GetConformer().GetAtomPosition(0).z
+
+    molblock = mol_utils.to_molblock_3d(mol, generate_3d=False)
+    # MOL block coordinates are written to 4 decimal places.
+    assert _molblock_z_coords(molblock)[0] == pytest.approx(expected, abs=1e-4)
+
+
+def test_to_molblock_3d_without_conformer_still_embeds() -> None:
+    """``generate_3d=False`` with no conformer falls through to embedding."""
+    molblock = mol_utils.to_molblock_3d("CCO", generate_3d=False)
+    assert any(abs(z) > 1e-6 for z in _molblock_z_coords(molblock))

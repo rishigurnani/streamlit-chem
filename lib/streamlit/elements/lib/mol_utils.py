@@ -53,28 +53,105 @@ def _is_mol(obj: object) -> bool:
     return isinstance(obj, Mol)
 
 
+def _looks_like_molblock(text: str) -> bool:
+    """Return whether ``text`` looks like a MOL block rather than a SMILES string.
+
+    A MOL/SDF block carries a version tag (``V2000``/``V3000``) on its counts
+    line; a SMILES string never does. This lets a single string argument accept
+    either format without a separate parameter.
+    """
+    return "V2000" in text or "V3000" in text
+
+
 def to_mol(data: MoleculeData) -> Mol:
     """Coerce ``data`` into an ``rdkit.Chem.Mol``.
 
-    Accepts a live ``Mol`` (returned as-is) or a SMILES string (parsed).
-    Raises ``StreamlitAPIException`` for unparseable SMILES or unsupported types.
+    Accepts a live ``Mol`` (returned as-is), a SMILES string, or a MOL block
+    (auto-detected). Raises ``StreamlitAPIException`` for unparseable input or
+    unsupported types.
     """
     from rdkit import Chem
 
     if isinstance(data, str):
+        if _looks_like_molblock(data):
+            # Keep explicit hydrogens so a 3D MOL block round-trips faithfully.
+            mol = Chem.MolFromMolBlock(data, removeHs=False)
+            if mol is None:
+                raise StreamlitAPIException(
+                    "Could not parse molecule from the provided MOL block. "
+                    "Provide a valid MOL block, SMILES string, or "
+                    "`rdkit.Chem.Mol` object."
+                )
+            return mol
         mol = Chem.MolFromSmiles(data)
         if mol is None:
             raise StreamlitAPIException(
                 f"Could not parse molecule from SMILES string: {data!r}. "
-                "Provide a valid SMILES string or an `rdkit.Chem.Mol` object."
+                "Provide a valid SMILES string, MOL block, or "
+                "`rdkit.Chem.Mol` object."
             )
         return mol
     if _is_mol(data):
         return data
     raise StreamlitAPIException(
-        "Molecule must be a SMILES string or an `rdkit.Chem.Mol` object, "
-        f"but got {type(data).__name__}."
+        "Molecule must be a SMILES string, MOL block, or `rdkit.Chem.Mol` "
+        f"object, but got {type(data).__name__}."
     )
+
+
+def to_smiles(data: MoleculeData) -> str:
+    """Return the canonical SMILES string for ``data`` (a SMILES string or Mol)."""
+    from rdkit import Chem
+
+    return Chem.MolToSmiles(to_mol(data))
+
+
+def to_molblock_3d(data: MoleculeData, *, generate_3d: bool = True) -> str:
+    """Return a 3D MOL block for ``data`` (a SMILES string or Mol).
+
+    When ``generate_3d`` is ``True`` (default), a 3D conformer is embedded with
+    RDKit's ETKDG algorithm and refined with the MMFF force field (falling back
+    to UFF when MMFF parameters are unavailable), so a bare SMILES string or a
+    flat 2D molecule becomes a viewable 3D structure. When ``generate_3d`` is
+    ``False``, an existing conformer is serialized as-is without re-embedding.
+
+    Embedding is expensive, so callers that render the same molecule repeatedly
+    should wrap this in ``@st.cache_data``; it is a pure function of the input.
+    """
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
+
+    # RDKit attaches the embedding/optimization helpers to AllChem dynamically,
+    # so they aren't visible to static type checkers; treat it as untyped here.
+    all_chem: Any = AllChem
+
+    mol = to_mol(data)
+
+    # Serialize an existing conformer untouched when the caller opts out of
+    # embedding. With no conformer there is nothing 3D to show, so we still fall
+    # through to embedding below.
+    if not generate_3d and mol.GetNumConformers() > 0:
+        return Chem.MolToMolBlock(mol)
+
+    # Explicit hydrogens give the force field a complete molecule to optimize;
+    # they are the standard input for a chemically sensible 3D embedding.
+    mol_with_hs = Chem.AddHs(mol)
+    # Pin the embedding's random seed so the same molecule always yields the same
+    # coordinates. Streamlit reruns must be deterministic (a widget's identity is
+    # derived from its serialized value), and a fixed seed also makes the output
+    # cacheable and reproducible.
+    embed_params = all_chem.ETKDG()
+    embed_params.randomSeed = 0xC0FFEE
+    if all_chem.EmbedMolecule(mol_with_hs, embed_params) != 0:
+        raise StreamlitAPIException(
+            "Could not generate a 3D conformer for the molecule. "
+            "Some structures cannot be embedded in 3D by RDKit."
+        )
+    # MMFF covers most drug-like molecules; UFF is the broader fallback for
+    # elements or valences MMFF lacks parameters for.
+    if all_chem.MMFFOptimizeMolecule(mol_with_hs) == -1:
+        all_chem.UFFOptimizeMolecule(mol_with_hs)
+    return Chem.MolToMolBlock(mol_with_hs)
 
 
 def to_query(query: SubstructureQuery) -> Mol:

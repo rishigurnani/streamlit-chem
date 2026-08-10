@@ -51,6 +51,7 @@ import "streamlit/proto/LinkButton.proto";
 import "streamlit/proto/Markdown.proto";
 import "streamlit/proto/MenuButton.proto";
 import "streamlit/proto/Metric.proto";
+import "streamlit/proto/MolViewer.proto";
 import "streamlit/proto/Molecule.proto";
 import "streamlit/proto/MultiSelect.proto";
 import "streamlit/proto/NumberInput.proto";
@@ -146,7 +147,8 @@ message Element {
     MenuButton menu_button = 64;
     Pagination pagination = 66;
     Molecule molecule = 67;
-    // Next ID: 68
+    MolViewer mol_viewer = 68;
+    // Next ID: 69
   }
 
   reserved 3, 9, 10, 11, 17;

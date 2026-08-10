@@ -35,6 +35,7 @@ from __future__ import annotations
 from streamlit.elements.arrow import DataframeState
 from streamlit.elements.deck_gl_json_chart import PydeckState
 from streamlit.elements.lib.column_config_utils import ButtonColumnClickState
+from streamlit.elements.mol_viewer import MolViewerState
 from streamlit.elements.plotly_chart import PlotlyState
 from streamlit.elements.vega_charts import VegaLiteState
 from streamlit.elements.widgets.chat import ChatInputValue
@@ -46,6 +47,7 @@ __all__ = [
     "ChatInputValue",
     "DataEditorState",
     "DataframeState",
+    "MolViewerState",
     "PlotlyState",
     "PydeckState",
     "UploadedFile",

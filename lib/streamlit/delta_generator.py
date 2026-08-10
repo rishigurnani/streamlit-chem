@@ -49,6 +49,7 @@ from streamlit.elements.alert import AlertMixin
 from streamlit.elements.arrow import ArrowMixin
 from streamlit.elements.balloons import BalloonsMixin
 from streamlit.elements.chem_dataframe import ChemDataFrameMixin
+from streamlit.elements.chem_draw import ChemDrawMixin
 from streamlit.elements.code import CodeMixin
 from streamlit.elements.deck_gl_json_chart import PydeckMixin
 from streamlit.elements.empty import EmptyMixin
@@ -75,6 +76,7 @@ from streamlit.elements.media import MediaMixin
 from streamlit.elements.mermaid_chart import MermaidChartMixin
 from streamlit.elements.metric import MetricMixin
 from streamlit.elements.mol_card import MolCardMixin
+from streamlit.elements.mol_viewer import MolViewerMixin
 from streamlit.elements.molecule import MoleculeMixin
 from streamlit.elements.pdf import PdfMixin
 from streamlit.elements.plotly_chart import PlotlyMixin
@@ -206,6 +208,7 @@ class DeltaGenerator(
     ChatMixin,
     CheckboxMixin,
     ChemDataFrameMixin,
+    ChemDrawMixin,
     CodeMixin,
     ColorPickerMixin,
     EmptyMixin,
@@ -226,6 +229,7 @@ class DeltaGenerator(
     MermaidChartMixin,
     MetricMixin,
     MolCardMixin,
+    MolViewerMixin,
     MoleculeMixin,
     SmartsInputMixin,
     MenuButtonMixin,

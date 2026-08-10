@@ -49,6 +49,7 @@ import {
   MenuButton as MenuButtonProto,
   Metric as MetricProto,
   Molecule as MoleculeProto,
+  MolViewer as MolViewerProto,
   MultiSelect as MultiSelectProto,
   NumberInput as NumberInputProto,
   PageLink as PageLinkProto,
@@ -126,6 +127,9 @@ const LinkButton = lazy(
 const Metric = lazy(() => import("~lib/components/elements/Metric/Metric"))
 const Molecule = lazy(
   () => import("~lib/components/elements/Molecule/Molecule")
+)
+const MolViewer = lazy(
+  () => import("~lib/components/elements/MolViewer/MolViewer")
 )
 const PageLink = lazy(
   () => import("~lib/components/elements/PageLink/PageLink")
@@ -549,6 +553,24 @@ const RawElementNodeRenderer = (
           <Molecule element={node.element.molecule as MoleculeProto} />
         </ElementContainer>
       )
+
+    case "molViewer": {
+      const molViewerProto = node.element.molViewer as MolViewerProto
+      widgetProps.disabled = widgetProps.disabled || molViewerProto.disabled
+      return (
+        <ElementContainer
+          node={node}
+          config={ElementContainerConfig.LARGE_ELEMENT}
+          isStale={isStale}
+        >
+          <MolViewer
+            key={molViewerProto.id}
+            element={molViewerProto}
+            {...widgetProps}
+          />
+        </ElementContainer>
+      )
+    }
 
     case "pageLink": {
       const pageLinkProto = node.element.pageLink as PageLinkProto

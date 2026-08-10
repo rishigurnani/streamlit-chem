@@ -165,3 +165,55 @@ st.mol_card(
     metrics=["MW", "LogP", "TPSA", "HBD", "HBA"],
     highlight_substructure="c1ccccc1",
 )
+
+# --- 9. Phase 4: interactive 2D editor ----------------------------------------
+st.header("9. `st.chem_draw` — interactive 2D editor")
+st.caption(
+    "Wraps the Ketcher editor and returns the drawn structure directly as an "
+    "RDKit `Mol`. Edit the molecule and click Apply to update the properties."
+)
+drawn = st.chem_draw("c1ccccc1O")
+if drawn is not None:
+    left, right = st.columns([1, 1])
+    with left:
+        st.molecule(drawn, caption="Your structure", width=250)
+    with right:
+        st.metric("Molecular weight", f"{Descriptors.MolWt(drawn):.1f}")
+        st.metric("LogP", f"{Descriptors.MolLogP(drawn):.2f}")
+else:
+    st.info("Draw a molecule to see its properties.")
+
+st.divider()
+
+st.header("10. `st.mol_viewer` — interactive 3D viewer")
+st.caption(
+    "Renders a WebGL 3D structure (3Dmol.js) from a server-side RDKit conformer. "
+    "Click atoms to select them — the selection flows straight back into Python."
+)
+
+
+# The 3D embedding is expensive, so cache the MOL block per SMILES. mol_viewer
+# accepts the cached MOL block directly, skipping re-embedding on every rerun.
+@st.cache_data
+def caffeine_molblock() -> str:
+    from streamlit.elements.lib.mol_utils import to_molblock_3d
+
+    return to_molblock_3d("CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
+
+
+st.code(
+    'event = st.mol_viewer("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", style="ball_and_stick")',
+    language="python",
+)
+event = st.mol_viewer(
+    caffeine_molblock(),
+    style="ball_and_stick",
+    surface="vdw",
+    generate_3d=False,
+    height=420,
+)
+selected_atoms = event.selection.atoms
+if selected_atoms:
+    st.success(f"Selected atom indices: {selected_atoms}")
+else:
+    st.info("Click an atom in the 3D view to select it.")

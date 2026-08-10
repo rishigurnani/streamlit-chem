@@ -142,6 +142,10 @@ test = [
   "streamlit[auth,charts,pdf,performance]",
   # Test-only packages not provided by any extra:
   "seaborn",
+  # streamlit-ketcher backs st.chem_draw's 2D editor. It is an optional runtime
+  # integration (lazily imported by the element), installed here so tests and the
+  # demo exercise it.
+  "streamlit-ketcher",
   # watchdog is skipped on macOS by the core deps; install it here so CI also
   # exercises the watchdog-based file watcher on macOS.
   "watchdog",
@@ -468,6 +472,8 @@ module = [
   # tomllib is only available in Python 3.11+, tomli is the fallback for Python 3.10
   "tomllib",
   "tomli",
+  # streamlit-ketcher (backs st.chem_draw) ships no type stubs.
+  "streamlit_ketcher.*",
 ]
 ignore_missing_imports = true
 

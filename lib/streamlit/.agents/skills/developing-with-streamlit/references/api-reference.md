@@ -51,6 +51,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.chat_message` | Insert a chat message container. Use it to render messages from users, assistants, or named speakers. |
 | `st.checkbox` | Display a checkbox widget. It returns a boolean value. |
 | `st.chem_dataframe` | Display an interactive dataframe with auto-rendered 2D molecular structures for a molecule column (SMILES or RDKit Mol), with optional substructure highlighting. A chemistry-aware wrapper around `st.dataframe`. |
+| `st.chem_draw` | Display an interactive 2D molecule editor (Ketcher) and return the drawn structure as an `rdkit.Chem.Mol` or SMILES string. Requires the `streamlit-ketcher` package. |
 | `st.code` | Display a code block with optional syntax highlighting. Use it for source code, commands, logs, and other preformatted text. |
 | `st.color_picker` | Display a color picker widget. It returns the selected color as a hex string. |
 | `st.columns` | Insert containers laid out as side-by-side columns. Use it for horizontal layouts and place elements into returned column containers. |
@@ -94,6 +95,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.mermaid_chart` | Display a Mermaid diagram. Use it for text-based diagram definitions such as flowcharts, sequence diagrams, class diagrams, and state diagrams. |
 | `st.metric` | Display a metric in big bold font, with an optional indicator of how the metric changed. Use it for KPIs, headline numbers, optional inline sparklines (`chart_data`), and dashboard summaries. |
 | `st.mol_card` | Display a compact summary card for a molecule, composing `st.molecule` with physicochemical metrics and a Lipinski rule-of-five badge. Accepts a SMILES string or an `rdkit.Chem.Mol`. |
+| `st.mol_viewer` | Display an interactive 3D molecule viewer (3Dmol.js WebGL) with a server-side RDKit conformer, returning atom/bond clicks as a selection state. Accepts a SMILES string, MOL block, or `rdkit.Chem.Mol`. |
 | `st.molecule` | Display a molecule as a native 2D chemical structure, rendered server-side by RDKit. Accepts a SMILES string or an `rdkit.Chem.Mol`, with optional substructure highlighting. |
 | `st.multiselect` | Display a multiselect widget. Use it when users can choose multiple items from a list, optionally including new options they enter. |
 | `st.navigation` | Configure the available pages in a multipage app and where the navigation menu appears (`sidebar`, `top`, or `hidden`). It returns the currently selected page object, which the app should run. |

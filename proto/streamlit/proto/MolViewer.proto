@@ -1,0 +1,52 @@
+/**!
+ * Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022-2026)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+// st.mol_viewer — an interactive 3D molecule viewer (3Dmol.js on the frontend).
+message MolViewer {
+  // The 3D structure as a MOL block, embedded server-side by RDKit so the
+  // frontend only has to render coordinates it is handed.
+  string molblock = 1;
+
+  // The representation style: stick | sphere | line | cartoon | ball_and_stick.
+  string style = 2;
+
+  // Optional molecular surface: "" (none) | vdw | sas | ms.
+  string surface = 3;
+
+  // Opacity of the surface in [0, 1]. Ignored when surface is "".
+  double surface_opacity = 4;
+
+  // Background color as a CSS string. "" means theme-aware (resolved on the frontend).
+  string background = 5;
+
+  // Whether the viewer auto-rotates the molecule.
+  bool spin = 6;
+
+  // Active selection modes ("atom", "bond"). Empty disables selection, which
+  // makes the viewer a pure display element rather than a widget.
+  repeated string selection_mode = 7;
+
+  // The unique element ID of this viewer.
+  string id = 8;
+
+  // Form ID, filled if selections are activated.
+  string form_id = 9;
+
+  // Whether the viewer is disabled (non-interactive) inside a form.
+  bool disabled = 10;
+}

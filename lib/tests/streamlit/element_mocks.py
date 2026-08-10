@@ -84,6 +84,8 @@ WIDGET_ELEMENTS: list[tuple[str, ELEMENT_PRODUCER]] = [
     ("text_area", lambda: st.text_area("Write me")),
     ("text_input", lambda: st.text_input("Write me")),
     ("smarts_input", lambda: st.smarts_input("Query")),
+    ("chem_draw", lambda: st.chem_draw()),
+    ("mol_viewer", lambda: st.mol_viewer("c1ccccc1O")),
     ("chat_input", lambda: st.chat_input("Chat with me")),
     # time_widgets
     ("date_input", lambda: st.date_input("Pick a date")),

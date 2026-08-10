@@ -36,6 +36,7 @@
     "typesync:ci": "typesync --dry=fail"
   },
   "dependencies": {
+    "3dmol": "2.5.5",
     "@deck.gl/aggregation-layers": "^9.3.7",
     "@deck.gl/carto": "^9.3.7",
     "@deck.gl/core": "^9.3.7",

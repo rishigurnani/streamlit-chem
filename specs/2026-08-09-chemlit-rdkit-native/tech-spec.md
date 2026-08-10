@@ -112,8 +112,7 @@ serializer guaranteed on — **not** a second caching implementation.
   [`streamlit-ketcher`](https://github.com/streamlit/streamlit-ketcher) rather than
   reimplementing the editor; convert its molfile/SMILES output to a `Mol` via the
   Mol-core so it round-trips like every other element.
-- **`st.mol_viewer`** = a 3Dmol.js/WebGL viewer widget returning click events; 2D
-  fallback reuses `mol_to_svg`. Isolated inside `st.fragment` so rotating/switching
+- **`st.mol_viewer`** = a 3Dmol.js/WebGL viewer widget returning click events. Isolated inside `st.fragment` so rotating/switching
   conformers does not rerun descriptor computation.
 - **`st.chem_space`** = fingerprints (Morgan/RDKit via Mol-core) → UMAP/t-SNE →
   existing scatter selection events; lasso selection is returned as selected indices
