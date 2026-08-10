@@ -132,6 +132,10 @@ WIDGET_ELEMENTS: list[tuple[str, ELEMENT_PRODUCER]] = [
         lambda: st.plotly_chart(px.line(pd.DataFrame()), on_select="rerun"),
     ),
     (
+        "chem_space",
+        lambda: st.chem_space(["c1ccccc1O", "c1ccccc1N", "c1ccccc1C"]),
+    ),
+    (
         "pydeck_chart",
         lambda: st.pydeck_chart(
             pdk.Deck(
@@ -212,6 +216,10 @@ NON_WIDGET_ELEMENTS: list[tuple[str, ELEMENT_PRODUCER]] = [
     ("metric", lambda: st.metric("Metric", 100)),
     ("dataframe", lambda: st.dataframe(pd.DataFrame())),
     ("chem_dataframe", lambda: st.chem_dataframe(pd.DataFrame({"Mol": ["CCO"]}))),
+    (
+        "r_group_decomposition",
+        lambda: st.r_group_decomposition("c1ccccc1", ["c1ccccc1O", "c1ccccc1N"]),
+    ),
     ("table", lambda: st.table(pd.DataFrame())),
     # charts:
     ("line_chart", lambda: st.line_chart(_CHART_DATA)),

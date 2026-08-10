@@ -50,6 +50,7 @@ from streamlit.elements.arrow import ArrowMixin
 from streamlit.elements.balloons import BalloonsMixin
 from streamlit.elements.chem_dataframe import ChemDataFrameMixin
 from streamlit.elements.chem_draw import ChemDrawMixin
+from streamlit.elements.chem_space import ChemSpaceMixin
 from streamlit.elements.code import CodeMixin
 from streamlit.elements.deck_gl_json_chart import PydeckMixin
 from streamlit.elements.empty import EmptyMixin
@@ -82,6 +83,7 @@ from streamlit.elements.pdf import PdfMixin
 from streamlit.elements.plotly_chart import PlotlyMixin
 from streamlit.elements.progress import ProgressMixin
 from streamlit.elements.pyplot import PyplotMixin
+from streamlit.elements.r_group_decomposition import RGroupDecompositionMixin
 from streamlit.elements.skeleton import SkeletonMixin
 from streamlit.elements.smarts_input import SmartsInputMixin
 from streamlit.elements.snow import SnowMixin
@@ -209,6 +211,7 @@ class DeltaGenerator(
     CheckboxMixin,
     ChemDataFrameMixin,
     ChemDrawMixin,
+    ChemSpaceMixin,
     CodeMixin,
     ColorPickerMixin,
     EmptyMixin,
@@ -241,6 +244,7 @@ class DeltaGenerator(
     ProgressMixin,
     PydeckMixin,
     PyplotMixin,
+    RGroupDecompositionMixin,
     RadioMixin,
     SelectboxMixin,
     SelectSliderMixin,

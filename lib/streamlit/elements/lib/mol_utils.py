@@ -25,13 +25,14 @@ consistent across the whole ChemLit surface and lives in exactly one place.
 from __future__ import annotations
 
 import base64
-from typing import TYPE_CHECKING, Any, Final, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Final, Literal, TypeAlias, Union
 
 from streamlit.errors import StreamlitAPIException
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    import numpy as np
     from rdkit.Chem import Mol
 
 # A molecule the user hands us: either a live RDKit Mol or a SMILES string.
@@ -316,3 +317,72 @@ def lipinski_violations(mol: Mol) -> list[str]:
         for name, threshold, message in _LIPINSKI_RULES
         if values[name] > threshold
     ]
+
+
+# Fingerprint families ChemLit exposes for structure-similarity work (e.g. the
+# chemical-space projection behind ``st.chem_space``).
+FingerprintType: TypeAlias = Literal["morgan", "rdkit"]
+
+
+def compute_fingerprints(
+    mols: Iterable[Mol],
+    *,
+    fingerprint: FingerprintType = "morgan",
+    radius: int = 2,
+    n_bits: int = 2048,
+) -> np.ndarray:
+    """Compute binary structural fingerprints for ``mols`` as a NumPy matrix.
+
+    Returns an ``(n_mols, n_bits)`` ``uint8`` array where each row is one
+    molecule's fingerprint. ``fingerprint`` selects the family: ``"morgan"``
+    (ECFP-like circular fingerprints, using ``radius``) or ``"rdkit"`` (the
+    RDKit path-based fingerprint, which ignores ``radius``). Raises
+    ``StreamlitAPIException`` for an unknown fingerprint type.
+    """
+    import numpy as np
+    from rdkit import DataStructs
+    from rdkit.Chem import rdFingerprintGenerator
+
+    if fingerprint == "morgan":
+        generator = rdFingerprintGenerator.GetMorganGenerator(
+            radius=radius, fpSize=n_bits
+        )
+    elif fingerprint == "rdkit":
+        generator = rdFingerprintGenerator.GetRDKitFPGenerator(fpSize=n_bits)
+    else:
+        raise StreamlitAPIException(
+            f"Unknown fingerprint type {fingerprint!r}. "
+            "Supported fingerprints: 'morgan', 'rdkit'."
+        )
+
+    rows: list[np.ndarray] = []
+    for mol in mols:
+        row = np.zeros((n_bits,), dtype=np.uint8)
+        DataStructs.ConvertToNumpyArray(generator.GetFingerprint(mol), row)
+        rows.append(row)
+
+    if not rows:
+        return np.empty((0, n_bits), dtype=np.uint8)
+    return np.vstack(rows)
+
+
+def decompose_r_groups(
+    mols: Iterable[Mol], core: Mol
+) -> tuple[list[dict[str, Mol]], list[int]]:
+    """Decompose ``mols`` around a shared ``core`` into R-group fragments.
+
+    Returns ``(rows, unmatched)``. ``rows`` has one entry per molecule that
+    matches the core, in input order, each a mapping like
+    ``{"Core": Mol, "R1": Mol, "R2": Mol, ...}`` whose keys are consistent
+    across rows. ``unmatched`` holds the input indices that did not match the
+    core (these contribute no row). Wraps RDKit's ``RGroupDecompose``.
+    """
+    from rdkit.Chem import rdRGroupDecomposition
+
+    # ``asSmiles=False`` returns fragments as ``Mol`` objects so callers can
+    # render or analyze them with the rest of the Mol-core, rather than
+    # re-parsing SMILES.
+    rows, unmatched = rdRGroupDecomposition.RGroupDecompose(
+        [core], list(mols), asSmiles=False
+    )
+    return rows, list(unmatched)

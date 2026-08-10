@@ -52,6 +52,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.checkbox` | Display a checkbox widget. It returns a boolean value. |
 | `st.chem_dataframe` | Display an interactive dataframe with auto-rendered 2D molecular structures for a molecule column (SMILES or RDKit Mol), with optional substructure highlighting. A chemistry-aware wrapper around `st.dataframe`. |
 | `st.chem_draw` | Display an interactive 2D molecule editor (Ketcher) and return the drawn structure as an `rdkit.Chem.Mol` or SMILES string. Requires the `streamlit-ketcher` package. |
+| `st.chem_space` | Display an interactive 2D map of a molecule library (fingerprints projected with PCA, t-SNE, or UMAP) and return the indices of the molecules the user selects by click, box, or lasso. Renders with `st.plotly_chart` and requires the `plotly` package. |
 | `st.code` | Display a code block with optional syntax highlighting. Use it for source code, commands, logs, and other preformatted text. |
 | `st.color_picker` | Display a color picker widget. It returns the selected color as a hex string. |
 | `st.columns` | Insert containers laid out as side-by-side columns. Use it for horizontal layouts and place elements into returned column containers. |
@@ -109,6 +110,7 @@ Run this command with the Streamlit installation relevant to the code being edit
 | `st.progress` | Display a progress bar. Use it to communicate completion state for running tasks or staged workflows. |
 | `st.pydeck_chart` | Draw a chart using the PyDeck library. Use it for deck.gl-powered maps and geospatial visualizations. |
 | `st.pyplot` | Display a matplotlib.pyplot figure. Use it for existing Matplotlib visualizations or libraries that produce Matplotlib figures. |
+| `st.r_group_decomposition` | Decompose a molecule series around a shared core into an R-group table — one row per molecule, one column of rendered 2D structures per R-group position — and return the decomposition as a Mol-valued DataFrame. Composes `st.dataframe` with RDKit R-group decomposition. |
 | `st.radio` | Display a radio button widget. Use it when users should choose exactly one option from a small visible set. |
 | `st.rerun` | Rerun the app or current fragment immediately. Use it to force a rerun after state changes or navigation-like actions. |
 | `st.scatter_chart` | Display a scatterplot chart. Use it for relationships between numeric variables, optionally with size and color encodings. |

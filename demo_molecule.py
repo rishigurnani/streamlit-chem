@@ -217,3 +217,118 @@ if selected_atoms:
     st.success(f"Selected atom indices: {selected_atoms}")
 else:
     st.info("Click an atom in the 3D view to select it.")
+
+st.divider()
+
+# --- 11. Phase 5: chemical-space map ------------------------------------------
+st.header("11. `st.chem_space` — map & lasso-select a library")
+st.caption(
+    "Turns a molecule library into a 2D map (fingerprints → PCA/t-SNE/UMAP). "
+    "Box- or lasso-select points and the picked molecules flow straight back "
+    "into Python — here they populate a `st.chem_dataframe` below the plot."
+)
+space_library = pd.DataFrame(
+    {
+        "Name": [
+            "Phenol",
+            "Aniline",
+            "Toluene",
+            "Benzoic acid",
+            "Aspirin",
+            "Ibuprofen",
+            "Ethanol",
+            "Propanol",
+            "Butylamine",
+            "Acetic acid",
+            "Caffeine",
+            "Paracetamol",
+        ],
+        "Mol": [
+            "c1ccccc1O",
+            "c1ccccc1N",
+            "Cc1ccccc1",
+            "OC(=O)c1ccccc1",
+            "CC(=O)Oc1ccccc1C(=O)O",
+            "CC(C)Cc1ccc(cc1)C(C)C(=O)O",
+            "CCO",
+            "CCCO",
+            "CCCCN",
+            "CC(=O)O",
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "CC(=O)Nc1ccc(O)cc1",
+        ],
+    }
+)
+# A stand-in activity value to color the points by (e.g. a measured pIC50).
+space_library["pIC50"] = [6.1, 5.4, 5.0, 6.3, 7.2, 7.8, 3.9, 4.1, 4.4, 3.6, 6.7, 6.9]
+st.code(
+    'event = st.chem_space(df["Mol"], color_by=df["pIC50"], labels=df["Name"])',
+    language="python",
+)
+space_event = st.chem_space(
+    space_library["Mol"].tolist(),
+    color_by=space_library["pIC50"].tolist(),
+    color_label="pIC50",
+    labels=space_library["Name"].tolist(),
+    height=440,
+    key="chem_space_demo",
+)
+picked = space_event.selection.point_indices
+if picked:
+    st.write(f"**{len(picked)}** molecule(s) selected:")
+    st.chem_dataframe(
+        space_library.iloc[picked],
+        mol_column="Mol",
+        hide_index=True,
+    )
+else:
+    st.info("Box- or lasso-select points in the map to list the molecules here.")
+
+st.divider()
+
+# --- 12. Phase 5: R-group decomposition ---------------------------------------
+st.header("12. `st.r_group_decomposition` — R-groups around a scaffold")
+st.caption(
+    "Breaks a series apart around a shared core: one row per molecule, one "
+    "column of rendered structures per R-group position. Returns the "
+    "decomposition as a `Mol`-valued DataFrame for further SAR analysis."
+)
+st.code(
+    'st.r_group_decomposition("c1ccccc1", mols, labels=names)',
+    language="python",
+)
+st.r_group_decomposition(
+    "c1ccccc1",
+    ["c1ccccc1O", "Cc1ccccc1", "Clc1ccccc1", "Nc1ccccc1", "OCc1ccccc1"],
+    labels=["Phenol", "Toluene", "Chlorobenzene", "Aniline", "Benzyl alcohol"],
+    label_column="Compound",
+)
+
+st.divider()
+
+# --- 13. Phase 5: cross-widget highlight binding ------------------------------
+st.header("13. Cross-widget substructure highlight binding")
+st.caption(
+    "One shared query drives the highlight in *every* structure element — no "
+    "element reaches into another; they all read the same value. Edit the query "
+    "and watch both the molecule and the card update together."
+)
+shared_query = st.smarts_input(
+    "Shared highlight query",
+    value="c1ccccc1",
+    key="shared_highlight",
+)
+bind_left, bind_right = st.columns(2)
+with bind_left:
+    st.molecule(
+        "CC(=O)Oc1ccccc1C(=O)O",
+        caption="Aspirin",
+        highlight_substructure=shared_query,
+    )
+with bind_right:
+    st.mol_card(
+        "Cc1ccc(cc1)S(=O)(=O)N",
+        title="p-Toluenesulfonamide",
+        metrics=["MW", "LogP", "TPSA"],
+        highlight_substructure=shared_query,
+    )

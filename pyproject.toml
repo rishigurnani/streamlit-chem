@@ -474,8 +474,20 @@ module = [
   "tomli",
   # streamlit-ketcher (backs st.chem_draw) ships no type stubs.
   "streamlit_ketcher.*",
+  # scikit-learn (t-SNE) and umap-learn (UMAP) are optional projection backends
+  # for st.chem_space; neither is a hard dependency.
+  "sklearn.*",
+  "umap.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# rdkit-stubs ships a syntactically invalid stub for this module (it declares a
+# `None:` class attribute, which is not a legal annotation target), so mypy
+# cannot parse it. Skip following it; st.r_group_decomposition uses it dynamically.
+module = ["rdkit.Chem.rdRGroupDecomposition"]
+follow_imports = "skip"
+follow_imports_for_stubs = true
 
 # =============================================================================
 # ty Configuration

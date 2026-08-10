@@ -206,3 +206,70 @@ def test_to_molblock_3d_without_conformer_still_embeds() -> None:
     """``generate_3d=False`` with no conformer falls through to embedding."""
     molblock = mol_utils.to_molblock_3d("CCO", generate_3d=False)
     assert any(abs(z) > 1e-6 for z in _molblock_z_coords(molblock))
+
+
+def test_compute_fingerprints_shape_and_dtype() -> None:
+    """Fingerprints stack into an (n_mols, n_bits) uint8 matrix."""
+    import numpy as np
+
+    mols = [Chem.MolFromSmiles(s) for s in ["c1ccccc1O", "c1ccccc1N", "CCO"]]
+    fps = mol_utils.compute_fingerprints(mols, n_bits=128)
+    assert fps.shape == (3, 128)
+    assert fps.dtype == np.uint8
+    # Fingerprints are binary bit vectors, never counts.
+    assert set(np.unique(fps)).issubset({0, 1})
+
+
+def test_compute_fingerprints_distinguishes_structures() -> None:
+    """Different molecules yield different fingerprints."""
+    import numpy as np
+
+    phenol, ethanol = Chem.MolFromSmiles("c1ccccc1O"), Chem.MolFromSmiles("CCO")
+    fps = mol_utils.compute_fingerprints([phenol, ethanol], n_bits=256)
+    assert not np.array_equal(fps[0], fps[1])
+
+
+def test_compute_fingerprints_rdkit_family() -> None:
+    """The RDKit path-based fingerprint is supported alongside Morgan."""
+    mols = [Chem.MolFromSmiles("c1ccccc1O")]
+    fps = mol_utils.compute_fingerprints(mols, fingerprint="rdkit", n_bits=64)
+    assert fps.shape == (1, 64)
+
+
+def test_compute_fingerprints_empty_input() -> None:
+    """No molecules yields an empty (0, n_bits) matrix rather than an error."""
+    fps = mol_utils.compute_fingerprints([], n_bits=32)
+    assert fps.shape == (0, 32)
+
+
+def test_compute_fingerprints_rejects_unknown_family() -> None:
+    """An unknown fingerprint type raises a clear StreamlitAPIException."""
+    with pytest.raises(StreamlitAPIException, match="Unknown fingerprint type"):
+        mol_utils.compute_fingerprints(
+            [Chem.MolFromSmiles("CCO")],
+            fingerprint="ecfp",  # type: ignore[arg-type]
+        )
+
+
+def test_decompose_r_groups_splits_around_core() -> None:
+    """Matching molecules are decomposed into consistent Core/R# fragments."""
+    mols = [Chem.MolFromSmiles(s) for s in ["c1ccccc1O", "c1ccccc1N"]]
+    core = Chem.MolFromSmiles("c1ccccc1")
+    rows, unmatched = mol_utils.decompose_r_groups(mols, core)
+
+    assert unmatched == []
+    assert len(rows) == 2
+    # Every row shares the same fragment columns (a Core plus one R-group).
+    assert set(rows[0]) == {"Core", "R1"} == set(rows[1])
+    # The R-group of phenol carries the oxygen substituent.
+    assert "O" in Chem.MolToSmiles(rows[0]["R1"])
+
+
+def test_decompose_r_groups_reports_unmatched() -> None:
+    """A molecule without the core is reported by index and contributes no row."""
+    mols = [Chem.MolFromSmiles(s) for s in ["c1ccccc1O", "CCO"]]
+    core = Chem.MolFromSmiles("c1ccccc1")
+    rows, unmatched = mol_utils.decompose_r_groups(mols, core)
+
+    assert unmatched == [1]
+    assert len(rows) == 1
