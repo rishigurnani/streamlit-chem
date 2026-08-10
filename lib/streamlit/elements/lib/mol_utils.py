@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Shared cheminformatics helpers backing ChemLit's native chemical elements.
+"""Shared cheminformatics helpers backing streamlit-chem's native chemical elements.
 
 This module is the single home for RDKit interop: coercing user input into an
 ``rdkit.Chem.Mol``, computing substructure matches, and rendering a molecule to
 a 2D SVG. Every chemical element is expected to build on these primitives
 (``st.molecule`` today; ``st.chem_dataframe``, ``st.smarts_input`` and
 ``st.mol_card`` next), so the parsing, matching, and drawing behavior stays
-consistent across the whole ChemLit surface and lives in exactly one place.
+consistent across the whole streamlit-chem surface and lives in exactly one place.
 """
 
 from __future__ import annotations
@@ -259,7 +259,7 @@ def mol_to_svg_data_uri(
     return f"data:image/svg+xml;base64,{encoded}"
 
 
-# Physicochemical descriptors ChemLit exposes, mapped to their RDKit
+# Physicochemical descriptors streamlit-chem exposes, mapped to their RDKit
 # implementations lazily so importing this module never imports RDKit.
 SUPPORTED_DESCRIPTORS: Final = ("MW", "LogP", "TPSA", "HBD", "HBA", "RotB")
 
@@ -319,7 +319,7 @@ def lipinski_violations(mol: Mol) -> list[str]:
     ]
 
 
-# Fingerprint families ChemLit exposes for structure-similarity work (e.g. the
+# Fingerprint families streamlit-chem exposes for structure-similarity work (e.g. the
 # chemical-space projection behind ``st.chem_space``).
 FingerprintType: TypeAlias = Literal["morgan", "rdkit"]
 

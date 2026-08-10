@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ChemLit demo runner.
+# streamlit-chem demo runner.
 #
 #   ./demo_molecule.sh          # render the demo molecules to an HTML gallery
 #                               # (pure Python — works without a frontend build)
@@ -38,7 +38,7 @@ fi
 
 # --- full live app ------------------------------------------------------------
 if [[ "${1:-}" == "--app" ]]; then
-  echo "Starting the live ChemLit app (backend + Vite frontend, hot-reload)..."
+  echo "Starting the live streamlit-chem app (backend + Vite frontend, hot-reload)..."
   echo "The URL will be printed below; press Ctrl-C to stop."
   echo "(Requires Node 24 + frontend deps installed via 'make frontend-init'.)"
   exec make debug demo_molecule.py
@@ -89,12 +89,12 @@ for data, caption, highlight, width in DEMOS:
     )
 
 html = (
-    "<!doctype html><meta charset='utf-8'><title>ChemLit — st.molecule demo</title>"
+    "<!doctype html><meta charset='utf-8'><title>streamlit-chem — st.molecule demo</title>"
     # Mirror the real element's responsive rule so wide structures scale to fit
     # their card instead of overflowing/clipping.
     "<style>figure svg{max-width:100%;height:auto}</style>"
     "<body style=\"font-family:system-ui,sans-serif;margin:32px;background:#fafafa\">"
-    "<h1>🧪 ChemLit — <code>st.molecule</code></h1>"
+    "<h1>🧪 streamlit-chem — <code>st.molecule</code></h1>"
     "<p style='color:#555'>These are the exact RDKit-rendered SVGs the element "
     "sends to the browser. For the interactive app, run "
     "<code>./demo_molecule.sh --app</code>.</p>"

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ChemLit demo — showcases the native ChemLit chemical elements.
+# streamlit-chem demo — showcases the native streamlit-chem chemical elements.
 #
 # Run it with the helper script:  ./demo_molecule.sh
 # ...or directly:                 uv run streamlit run demo_molecule.py
@@ -23,7 +23,7 @@ from rdkit.Chem import Descriptors
 
 import streamlit as st
 
-st.title("🧪 ChemLit — chemical elements demo")
+st.title("🧪 streamlit-chem — chemical elements demo")
 st.caption(
     "Native RDKit-rendered chemistry for Streamlit. Molecules go straight from "
     "Python to the browser — no iframe, no custom component."
@@ -154,7 +154,7 @@ st.divider()
 st.header("8. `st.mol_viewer` — click an atom to see its element")
 st.caption(
     "Renders a WebGL 3D structure (3Dmol.js) from a server-side RDKit conformer. "
-    "Click atoms and ChemLit reports the element (C, O, N, ...) of each one."
+    "Click atoms and streamlit-chem reports the element (C, O, N, ...) of each one."
 )
 
 

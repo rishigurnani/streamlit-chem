@@ -3,11 +3,11 @@ author: rgurnani96
 created: 2026-08-09
 ---
 
-# ChemLit — technical design
+# streamlit-chem — technical design
 
 ## Summary
 
-How ChemLit is built on top of Streamlit without forking the rendering pipeline or
+How streamlit-chem is built on top of Streamlit without forking the rendering pipeline or
 duplicating RDKit logic. The core idea: one shared `mol_utils` module owns all RDKit
 interop, and each chemical feature is a thin layer over it (a display element, a
 `column_config` type, a cache serializer, or a composition of existing widgets). This

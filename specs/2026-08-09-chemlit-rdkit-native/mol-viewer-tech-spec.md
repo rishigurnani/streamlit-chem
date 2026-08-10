@@ -1,10 +1,10 @@
 # Tech Spec — `st.mol_viewer` (interactive 3D molecule viewer)
 
-Status: **DRAFT — for review** · Phase 4b of ChemLit · Author: Rishi Gurnani
+Status: **DRAFT — for review** · Phase 4b of streamlit-chem · Author: Rishi Gurnani
 
 This spec covers the **native, event-emitting** 3D viewer (the option-2 path): a
 hardware-accelerated WebGL viewer whose atom/bond/pose clicks flow back into the
-Python script. It is the first ChemLit element that ships a new frontend
+Python script. It is the first streamlit-chem element that ships a new frontend
 dependency and a bidirectional (widget) round-trip, so it is scoped and reviewed
 separately from Phases 1–3.
 
@@ -67,7 +67,7 @@ signatures. The original DX sketch's `on_atom_click=lambda ...` is expressible a
 
 ## 3. Architecture
 
-ChemLit's rule holds: **one Mol-core, thin elements.** The only new chem logic is
+streamlit-chem's rule holds: **one Mol-core, thin elements.** The only new chem logic is
 3D embedding; everything else is the widget + frontend viewer.
 
 ### 3.1 Mol-core addition (`elements/lib/mol_utils.py`)

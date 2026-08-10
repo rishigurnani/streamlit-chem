@@ -14,7 +14,7 @@
 
 """Streamlit support for interactive chemical-space maps.
 
-``st.chem_space`` is the SAR-workhorse of ChemLit: it turns a library of
+``st.chem_space`` is the SAR-workhorse of streamlit-chem: it turns a library of
 molecules into a 2D scatter plot (fingerprints -> dimensionality reduction) that
 users can lasso-select. The selected point indices flow back into the script so
 a downstream ``st.chem_dataframe`` or ``st.mol_card`` can show exactly the
@@ -50,7 +50,7 @@ def _reduce_to_2d(features: np.ndarray, method: ChemSpaceMethod) -> np.ndarray:
 
     n_samples = features.shape[0]
     if method == "pca":
-        # PCA via SVD keeps ChemLit's default projection dependency-free (NumPy
+        # PCA via SVD keeps streamlit-chem's default projection dependency-free (NumPy
         # is already a hard dependency); t-SNE and UMAP are optional extras.
         centered = features.astype(float) - features.astype(float).mean(axis=0)
         left, singular_values, _ = np.linalg.svd(centered, full_matrices=False)

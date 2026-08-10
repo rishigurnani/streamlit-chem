@@ -77,7 +77,7 @@ dependencies = [
   # PyArrow 25.0.0 can segfault when first imported from a short-lived worker thread.
   # See https://github.com/apache/arrow/issues/50471.
   "pyarrow>=7.0,<25",
-  # RDKit is the cheminformatics engine powering ChemLit's native chemical
+  # RDKit is the cheminformatics engine powering streamlit-chem's native chemical
   # elements (st.molecule today; the chem_dataframe / smarts_input / mol_card
   # family next). Like "packaging" above, RDKit uses calendar-based versioning
   # (YYYY.MM) where a "major" bump is a scheduled release rather than a breaking

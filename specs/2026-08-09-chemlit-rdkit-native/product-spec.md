@@ -3,11 +3,11 @@ author: rgurnani96
 created: 2026-08-09
 ---
 
-# ChemLit — An RDKit-native fork of Streamlit
+# streamlit-chem — An RDKit-native fork of Streamlit
 
 ## Summary
 
-ChemLit extends Streamlit with first-class cheminformatics: native chemical UI
+streamlit-chem extends Streamlit with first-class cheminformatics: native chemical UI
 primitives that pass `rdkit.Chem.Mol` objects directly to and from Python, a
 chemical-aware reactive state/caching layer, and out-of-the-box Structure-Activity
 Relationship (SAR) analytics. This spec covers the full feature set and the
@@ -34,7 +34,7 @@ foot-guns, no recomputation of descriptors when someone merely rotates a 3D view
 The headline feature list looks like ~15 independent components. It is not. Most of
 them are the **same three operations** — coerce input to a `Mol`, match a
 substructure, render a `Mol` to 2D — wearing different UI. To prevent code churn and
-shotgun surgery, ChemLit is organized around a single shared core and a small number
+shotgun surgery, streamlit-chem is organized around a single shared core and a small number
 of thin composition layers.
 
 ### The Mol-core (one module, many widgets)
@@ -91,7 +91,7 @@ The two most important generalizations:
 ### API surface (full target)
 
 ```python
-import chemlit as st  # ChemLit is import-compatible with streamlit
+import streamlit_chem as st  # streamlit-chem is import-compatible with streamlit
 
 # 1. Native chemical UI
 st.molecule(mol_or_smiles, *, caption=None, highlight_substructure=None,
@@ -164,4 +164,4 @@ st.molecule("CC(=O)Oc1ccccc1C(=O)O", caption="Aspirin",
 | No new dependencies          | ❌ Adds `rdkit` as a hard dependency (the whole point of the fork). Phases 4–5 add JS viewers (Ketcher, 3Dmol.js). |
 | Metrics collected            | ✅ `@gather_metrics("molecule")`; each new command instrumented likewise. |
 | Any security/legal impact?   | ✅ SVG sanitized via DOMPurify. RDKit is BSD-3; Ketcher/3Dmol.js licenses to be confirmed in Phase 4. |
-| Any docs changes needed?     | ✅ New API reference pages per command; migration note on the `chemlit` import alias. |
+| Any docs changes needed?     | ✅ New API reference pages per command; migration note on the `streamlit_chem` import alias. |
